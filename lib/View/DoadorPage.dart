@@ -146,13 +146,16 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
       _doador.email_solicitante = _email_solicitanteController.text;
       _doador.local_internacao = _local_internacaoController.text;
       _doador.motivo = _motivoController.text;
-      _doador.qtd_bolsas = int.parse(_qtd_bolsasController.text);
+
+      if (_qtd_bolsasController.text != "") {
+        _doador.qtd_bolsas = int.parse(_qtd_bolsasController.text);
+      }
     }
 
-    if (!_doadorExiste) {
-      DoadorDAO.insert(_doador);
-    } else {
+    if (_doadorExiste) {
       DoadorDAO.update(_doador);
+    } else {
+      DoadorDAO.insert(_doador);
     }
 
     Navigator.pop(context, false);
@@ -363,9 +366,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
 
       if (image == null) return;
 
-      final imageTemp = File(image.path);
-
-      setState(() => this._arquivo = imageTemp);
+      cropImage(image.path);
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
@@ -377,26 +378,37 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
 
       if (image == null) return;
 
-      final imageTemp = File(image.path);
-
-      setState(() => this._arquivo = imageTemp);
-      //cropImage(image.path);
+      cropImage(image.path);
     } on PlatformException catch (e) {
       print('Failed to pick image: $e');
     }
   }
 
-  Future _cropImage(filePath) async {
+  cropImage(filePath) async {
     File? croppedImage = await ImageCropper().cropImage(
       sourcePath: filePath,
-      maxWidth: 625,
-      maxHeight: 625,
+      maxWidth: 600,
+      maxHeight: 600,
+      aspectRatio: CropAspectRatio(ratioX: 16, ratioY: 9),
+      androidUiSettings: androidUiSettings(),
+      iosUiSettings: iosUiSettings(),
     );
     if (croppedImage != null) {
-      final imageTemp = File(croppedImage.path);
+      final imageTemp = croppedImage; //File(croppedImage.path);
       setState(() => this._arquivo = imageTemp);
     }
   }
+
+  static IOSUiSettings iosUiSettings() => IOSUiSettings(
+        aspectRatioLockEnabled: false,
+      );
+
+  static AndroidUiSettings androidUiSettings() => AndroidUiSettings(
+        toolbarTitle: 'Ajuste a Imagem',
+        toolbarColor: Colors.red,
+        toolbarWidgetColor: Colors.white,
+        lockAspectRatio: false,
+      );
 
   Widget _corpo(context) {
     return Container(

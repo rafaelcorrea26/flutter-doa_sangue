@@ -135,9 +135,7 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
 
       if (image == null) return;
 
-      final imageTemp = File(image.path);
-
-      setState(() => this._arquivo = imageTemp);
+      cropImage(image.path);
     } on PlatformException catch (e) {
       print('Falha ao selecionar a imagem: $e');
     }
@@ -149,10 +147,7 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
 
       if (image == null) return;
 
-      final imageTemp = File(image.path);
-
-      setState(() => this._arquivo = imageTemp);
-      //cropImage(image.path);
+      cropImage(image.path);
     } on PlatformException catch (e) {
       print('Falha ao selecionar a imagem: $e');
     }
@@ -161,14 +156,28 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
   cropImage(filePath) async {
     File? croppedImage = await ImageCropper().cropImage(
       sourcePath: filePath,
-      maxWidth: 625,
-      maxHeight: 625,
+      maxWidth: 600,
+      maxHeight: 600,
+      aspectRatio: CropAspectRatio(ratioX: 16, ratioY: 9),
+      androidUiSettings: androidUiSettings(),
+      iosUiSettings: iosUiSettings(),
     );
     if (croppedImage != null) {
-      final imageTemp = File(croppedImage.path);
+      final imageTemp = croppedImage; //File(croppedImage.path);
       setState(() => this._arquivo = imageTemp);
     }
   }
+
+  static IOSUiSettings iosUiSettings() => IOSUiSettings(
+        aspectRatioLockEnabled: false,
+      );
+
+  static AndroidUiSettings androidUiSettings() => AndroidUiSettings(
+        toolbarTitle: 'Ajuste a Imagem',
+        toolbarColor: Colors.red,
+        toolbarWidgetColor: Colors.white,
+        lockAspectRatio: false,
+      );
 
   void ListarUsuarios() async {
     Container(
