@@ -3,25 +3,33 @@ import 'package:doa_sangue/Model/Doador.dart';
 import '../Connection.dart';
 
 class DoadorDAO {
-  static Future<Map> get() async {
+  static Future<Doador> search(Doador doador) async {
     var _db = await Connection.get();
-    Map result = Map();
-    List<Map> items = await _db.query('doador');
-
-    if (items.isNotEmpty) {
-      result = items.first;
-    }
-    return result;
-  }
-
-  static Future<Map> searchId(Doador doador) async {
-    var _db = await Connection.get();
-    List<Map> items = await _db.query('doador', where: 'id =1'); //?', whereArgs: [doador.id]);
-
-    if (items.isNotEmpty) {
-      return doador.fromMap(items.first);
+    List<Map> retorno = await _db.query('doador');
+    if (retorno.isNotEmpty) {
+      return doador.fromMap(retorno.first);
     } else {
       return null!;
+    }
+  }
+
+  static Future<Doador> searchId(Doador doador) async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.query('doador', where: 'id = ?', whereArgs: [doador.id]);
+    if (retorno.isNotEmpty) {
+      return doador.fromMap(retorno.first);
+    } else {
+      return null!;
+    }
+  }
+
+  static Future<bool> isValidDoador(int id) async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.query('doador', where: 'id = ?', whereArgs: [id]);
+    if (retorno.isNotEmpty) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -39,10 +47,7 @@ class DoadorDAO {
   static update(Doador doador) async {
     try {
       var _db = await Connection.get();
-      await _db.update(
-        'doador',
-        doador.toMap(),
-      );
+      await _db.update('doador', doador.toMap(), where: "id = ?", whereArgs: [doador.id]);
     } catch (ex) {
       print(ex);
       return;

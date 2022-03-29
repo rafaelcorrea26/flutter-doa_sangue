@@ -20,6 +20,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
   var CaminhoImagem = "assets/pictures/profile-picture.jpg";
   bool _tipoDoador = false;
   File? _arquivo;
+  bool _doadorExiste = false;
   TextEditingController _nomeController = TextEditingController();
   TextEditingController _nome_maeController = TextEditingController();
   TextEditingController _nome_paiController = TextEditingController();
@@ -73,6 +74,41 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
   ];
 
   // Functions
+
+  Future _carregaCamposDoador() async {
+    _doadorExiste = await DoadorDAO.isValidDoador(1);
+
+    if (_doadorExiste) {
+      _doador.id = 1;
+      await DoadorDAO.search(_doador);
+      _nomeController.text = _doador.nome_completo;
+      _nome_maeController.text = _doador.nome_mae;
+      _nome_paiController.text = _doador.nome_pai;
+      _data_nascController.text = _doador.data_nasc;
+      _cpfController.text = _doador.cpf;
+      _rgController.text = _doador.rg;
+      _celularController.text = _doador.celular;
+      _dropdownSangValue = _doador.tipo_sangue;
+      _dropdownGenValue = _doador.genero;
+      _dropdownUFValue = _doador.uf;
+      _dropdownTipoValue = _doador.tipo_usuario;
+      _id_carteiraController.text = _doador.id_carteira_doador;
+      _email_doadorController.text = _doador.email_doador;
+      _email_solicitanteController.text = _doador.email_solicitante;
+      _local_internacaoController.text = _doador.local_internacao;
+      _motivoController.text = _doador.motivo;
+      _qtd_bolsasController.text = _doador.qtd_bolsas.toString();
+      if (_doador.imagem != '') {
+        final imageTemp = File(_doador.imagem);
+        setState(() => _arquivo = imageTemp);
+      }
+    } else {
+      _doador.id = 0;
+    }
+
+    print(_doador);
+  }
+
   String? _verificarCaminhoImagem() {
     if (_arquivo == null) {
       return CaminhoImagem;
@@ -86,39 +122,11 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
   @override
   void initState() {
     super.initState();
-    _carregaCamposDoador();
+    _carregaCamposDoador().then;
+    setState(() {});
   }
 
-  _carregaCamposDoador() async {
-    _doador.id = 1;
-    await DoadorDAO.searchId(_doador);
-
-    //   print(_doador.toString());
-    if (_doador.nome_completo != "") {
-      _nomeController.text = _doador.nome_completo;
-      _nome_maeController.text = _doador.nome_mae;
-      _nome_paiController.text = _doador.nome_pai;
-      _dropdownGenValue = _doador.genero;
-      _data_nascController.text = _doador.data_nasc;
-      _cpfController.text = _doador.cpf;
-      _rgController.text = _doador.rg;
-      _celularController.text = _doador.celular;
-      _dropdownSangValue = _doador.tipo_sangue;
-      _dropdownUFValue = _doador.uf;
-      _id_carteiraController.text = _doador.id_carteira_doador;
-      _email_doadorController.text = _doador.email_doador;
-      _email_solicitanteController.text = _doador.email_solicitante;
-      _local_internacaoController.text = _doador.local_internacao;
-      _motivoController.text = _doador.motivo;
-      _qtd_bolsasController.text = _doador.qtd_bolsas.toString();
-      if (_doador.imagem != '') {
-        setState(() => CaminhoImagem = _doador.imagem);
-      }
-    } else
-      _doador.id = 0;
-  }
-
-  void _cadastrarDoador() async {
+  Future _cadastrarDoador() async {
     _doador.nome_completo = _nomeController.text;
     _doador.nome_mae = _nome_maeController.text;
     _doador.nome_pai = _nome_paiController.text;
@@ -128,6 +136,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
     _doador.rg = _rgController.text;
     _doador.celular = _celularController.text;
     _doador.tipo_sangue = _dropdownSangValue;
+    _doador.tipo_usuario = _dropdownTipoValue;
     _doador.uf = _dropdownUFValue;
     _doador.id_carteira_doador = _id_carteiraController.text;
     _doador.email_doador = _email_doadorController.text;
@@ -140,8 +149,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
       _doador.qtd_bolsas = int.parse(_qtd_bolsasController.text);
     }
 
-    if (_doador.id < 1) {
-      _doador.id = 1;
+    if (!_doadorExiste) {
       DoadorDAO.insert(_doador);
     } else {
       DoadorDAO.update(_doador);
@@ -175,7 +183,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
     );
   }
 
-  Future<void> _mostraDialogoEscolha(BuildContext context) {
+  Future _mostraDialogoEscolha(BuildContext context) {
     return showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -378,7 +386,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
     }
   }
 
-  _cropImage(filePath) async {
+  Future _cropImage(filePath) async {
     File? croppedImage = await ImageCropper().cropImage(
       sourcePath: filePath,
       maxWidth: 625,

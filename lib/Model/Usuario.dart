@@ -8,18 +8,8 @@ class Usuario {
   // Constructor
   Usuario();
 
-  fromMap(Map map) {
-    id = map['id'];
-    nome = map['nome'];
-    login = map['login'];
-    email = map['email'];
-    senha = map['senha'];
-    imagem = map['imagem'];
-  }
-
   Map<String, Object> toMap() {
     Map<String, Object> map = {
-      'id': id,
       'nome': nome,
       'login': login,
       'email': email,
@@ -30,6 +20,15 @@ class Usuario {
       map["id"] = id;
     }
     return map;
+  }
+
+  fromMap(Map map) {
+    id = map['id'];
+    nome = map['nome'];
+    login = map['login'];
+    email = map['email'];
+    senha = map['senha'];
+    imagem = map['imagem'];
   }
 
   @override

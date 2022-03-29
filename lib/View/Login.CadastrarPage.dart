@@ -57,7 +57,8 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
       _emailController.text = _usuario.email;
       _senhaController.text = _usuario.senha;
       if (_usuario.imagem != '') {
-        setState(() => CaminhoImagem = _usuario.imagem);
+        final imageTemp = File(_usuario.imagem);
+        setState(() => _arquivo = imageTemp);
       }
     } else
       _usuario.id = 0;
@@ -71,7 +72,6 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
     _usuario.imagem = _verificarCaminhoImagem()!;
 
     if (_usuario.id < 1) {
-      _usuario.id = 1;
       UsuarioDAO.insert(_usuario);
     } else {
       UsuarioDAO.update(_usuario);

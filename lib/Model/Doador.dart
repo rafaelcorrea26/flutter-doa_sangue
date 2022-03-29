@@ -9,6 +9,7 @@ class Doador {
   String rg = "";
   String celular = "";
   String tipo_sangue = "";
+  String tipo_usuario = "";
   String uf = "";
   String id_carteira_doador = "";
   String email_doador = "";
@@ -22,7 +23,6 @@ class Doador {
 
   Map<String, Object> toMap() {
     Map<String, Object> map = {
-      'id': id,
       'nome_completo': nome_completo,
       'nome_mae': nome_mae,
       'nome_pai': nome_pai,
@@ -32,6 +32,7 @@ class Doador {
       'rg': rg,
       'celular': celular,
       'tipo_sangue': tipo_sangue,
+      'tipo_usuario': tipo_usuario,
       'uf': uf,
       'id_carteira_doador': id_carteira_doador,
       'email_doador': email_doador,
@@ -58,6 +59,7 @@ class Doador {
     rg = map['rg'];
     celular = map['celular'];
     tipo_sangue = map['tipo_sangue'];
+    tipo_usuario = map['tipo_usuario'];
     uf = map['uf'];
     id_carteira_doador = map['id_carteira_doador'];
     email_doador = map['email_doador'];
@@ -80,6 +82,7 @@ class Doador {
         'rg: $rg,'
         'celular: $celular,'
         'tipo_sangue: $tipo_sangue,'
+        'tipo_usuario: $tipo_usuario,'
         'uf: $uf,'
         'id_carteira_doador: $id_carteira_doador,'
         'email_doador: $email_doador,'

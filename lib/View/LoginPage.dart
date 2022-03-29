@@ -3,8 +3,6 @@ import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Login.CadastrarPage.dart';
-import 'Login.FacebookPage.dart';
-import 'Login.GooglePage.dart';
 import 'PrincipalPage.dart';
 import 'package:doa_sangue/View/Login.ResetarPasswordPage.dart';
 
@@ -20,15 +18,16 @@ class LoginPage extends StatelessWidget {
 TextEditingController _emailControler = TextEditingController();
 TextEditingController _senhaControler = TextEditingController();
 
-Mensagem() {
-  return AlertDialog(
-    title: const Text('AlertDialog Title'),
-    content: SingleChildScrollView(
-      child: ListBody(children: const <Widget>[
-        Text('Usuário não encontrado!'),
-      ]),
-    ),
-  );
+void _Mensagem(BuildContext context) {
+  showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+          title: const Text('Houve algum Erro'),
+          content: SingleChildScrollView(
+            child: ListBody(children: const <Widget>[
+              Text('Usuário não encontrado!'),
+            ]),
+          )));
 }
 
 _entrarSistema(context) async {
@@ -36,15 +35,19 @@ _entrarSistema(context) async {
   _usuario.email = _emailControler.text;
   _usuario.login = _emailControler.text;
   _usuario.senha = _senhaControler.text;
-  if (await UsuarioDAO.login(_usuario)) {
+  if (await UsuarioDAO.isloginValid(_usuario)) {
+    _usuario.email = _emailControler.text;
+    _usuario.login = _emailControler.text;
+    _usuario.senha = _senhaControler.text;
+    await UsuarioDAO.login(_usuario);
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const PrincipalPage(),
+        builder: (context) => PrincipalPage(_usuario),
       ),
     );
   } else {
-    Mensagem();
+    _Mensagem(context);
   }
 }
 
@@ -87,7 +90,7 @@ Widget corpo(context) {
                 color: Colors.red[400],
               ),
             ),
-            labelText: "E-mail",
+            labelText: "Login/E-mail",
             labelStyle: const TextStyle(
               color: Colors.black38,
               fontWeight: FontWeight.w400,
@@ -183,94 +186,6 @@ Widget corpo(context) {
               ),
               onPressed: () {
                 _entrarSistema(context);
-              },
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-        Container(
-          height: 60,
-          alignment: Alignment.centerLeft,
-          decoration: const BoxDecoration(
-            color: Color(0XFFEF5350),
-            borderRadius: BorderRadius.all(
-              Radius.circular(5),
-            ),
-          ),
-          child: SizedBox.expand(
-            child: TextButton(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text(
-                    "Entrar com Facebook",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                  SizedBox(
-                    child: Image.asset("assets/icons/facebook-icon.png"),
-                    height: 28,
-                    width: 28,
-                  )
-                ],
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const FacebookPage(),
-                  ),
-                );
-              },
-            ),
-          ),
-        ),
-        const SizedBox(
-          height: 8,
-        ),
-        Container(
-          height: 60,
-          alignment: Alignment.centerLeft,
-          decoration: const BoxDecoration(
-            color: Color(0XFFEF5350),
-            borderRadius: BorderRadius.all(
-              Radius.circular(5),
-            ),
-          ),
-          child: SizedBox.expand(
-            child: TextButton(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  const Text(
-                    "Entrar com conta Google",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                    textAlign: TextAlign.left,
-                  ),
-                  SizedBox(
-                    child: Image.asset("assets/icons/google-icon.png"),
-                    height: 28,
-                    width: 28,
-                  )
-                ],
-              ),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const GooglePage(),
-                  ),
-                );
               },
             ),
           ),

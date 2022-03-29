@@ -59,7 +59,7 @@ class UsuarioDAO {
     }
   }
 
-  static Future<bool> login(Usuario usuario) async {
+  static Future<bool> isloginValid(Usuario usuario) async {
     var _db = await Connection.get();
     List<Map> retorno = await _db.query('usuario',
         where: "(email = ? or login = ?)"
@@ -69,6 +69,19 @@ class UsuarioDAO {
       return true;
     } else {
       return false;
+    }
+  }
+
+  static Future<Usuario> login(Usuario usuario) async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.query('usuario',
+        where: "(email = ? or login = ?)"
+            " AND senha = ? ",
+        whereArgs: [usuario.email, usuario.login, usuario.senha]);
+    if (retorno.isNotEmpty) {
+      return usuario.fromMap(retorno.first);
+    } else {
+      return null!;
     }
   }
 }
