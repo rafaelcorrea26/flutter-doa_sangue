@@ -33,6 +33,7 @@ dev_dependencies:
   flutter_lints: ^1.0.0
   provider: "^4.0.1"
   path_provider: "^2.0.9"
+  email_validator: '^1.0.6'
 
   #Sqlite
   sqflite:
@@ -53,10 +54,6 @@ dev_dependencies:
   firebase_dynamic_links_platform_interface: 0.2.0+5
   firebase_performance_platform_interface: 0.1.0+5
   firebase_app_installations_platform_interface: 0.1.0+6
-
-
-
-
 
 flutter:
 

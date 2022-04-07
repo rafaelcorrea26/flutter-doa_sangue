@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:doa_sangue/View/AgendamentoPage.dart';
 import 'package:doa_sangue/View/Login.CadastrarPage.dart';
@@ -28,6 +28,14 @@ class _PrincipalPageState extends State<PrincipalPage> {
       final imageTemp = File(widget._usuario.imagem);
       setState(() => _arquivo = imageTemp);
     }
+  }
+
+  @override
+  void onResume() {
+    setState(() {
+      UsuarioDAO.searchId(widget._usuario);
+    });
+    super.context;
   }
 
   print(_usuario) {
@@ -75,10 +83,9 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CadastroUsuarioPage(),
+                    builder: (context) => CadastroUsuarioPage(widget._usuario.id, true),
                   ),
                 );
-                //Navegar para outra página
               },
             ),
             ListTile(
@@ -89,10 +96,9 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => CadastroPrincipalPage(),
+                    builder: (context) => CadastroDoadorPage(widget._usuario.id),
                   ),
                 );
-                //Navegar para outra página
               },
             ),
             ListTile(

@@ -26,10 +26,22 @@ class DoadorDAO {
   static Future<bool> isValidDoador(int id) async {
     var _db = await Connection.get();
     List<Map> retorno = await _db.query('doador', where: 'id = ?', whereArgs: [id]);
+
     if (retorno.isNotEmpty) {
       return true;
     } else {
       return false;
+    }
+  }
+
+  static Future<int> returnDoadorId(int id_usuario) async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.query('doador', where: 'id_usuario = ?', whereArgs: [id_usuario]);
+
+    if (retorno.isNotEmpty) {
+      return retorno[0]["id"];
+    } else {
+      return 0;
     }
   }
 

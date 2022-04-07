@@ -18,6 +18,7 @@ class Doador {
   String motivo = "";
   int qtd_bolsas = 0;
   String imagem = "";
+  int id_usuario = 0;
 
   Doador();
 
@@ -41,6 +42,7 @@ class Doador {
       'motivo': motivo,
       'qtd_bolsas': qtd_bolsas,
       'imagem': imagem,
+      'id_usuario': id_usuario,
     };
     if (id > 0) {
       map["id"] = id;
@@ -68,6 +70,7 @@ class Doador {
     motivo = map['motivo'];
     qtd_bolsas = map['qtd_bolsas'];
     imagem = map['imagem'];
+    id_usuario = map['id_usuario'];
   }
 
   @override
@@ -90,6 +93,7 @@ class Doador {
         'local_internacao: $local_internacao,'
         'motivo: $motivo,'
         'qtd_bolsas: $qtd_bolsas,'
-        'imagem: $imagem }';
+        'imagem: $imagem,'
+        'id_usuario: $id_usuario }';
   }
 }

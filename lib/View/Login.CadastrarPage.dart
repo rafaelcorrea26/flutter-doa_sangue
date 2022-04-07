@@ -1,19 +1,26 @@
 import 'dart:io';
+import 'package:doa_sangue/Model/Validators.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:email_validator/email_validator.dart';
+import 'PrincipalPage.dart';
 
 class CadastroUsuarioPage extends StatefulWidget {
-  CadastroUsuarioPage();
+  int idUsuario;
+  bool edicaoUsuario;
+
+  CadastroUsuarioPage(this.idUsuario, this.edicaoUsuario);
 
   @override
   _CadastroUsuarioPage createState() => _CadastroUsuarioPage();
 }
 
 class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
+  final _formKey = GlobalKey<FormState>();
   Usuario _usuario = Usuario();
   var CaminhoImagem = "assets/pictures/profile-picture.jpg";
   TextEditingController _nomeController = TextEditingController();
@@ -36,7 +43,8 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
   @override
   void initState() {
     super.initState();
-    _usuario.id = 0;
+    _usuario.id = widget.idUsuario;
+    _carregaCampos();
   }
 
   String? _verificarCaminhoImagem() {
@@ -48,36 +56,79 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
   }
 
   void _carregaCampos() async {
-    _usuario.id = 1;
-    await UsuarioDAO.searchId(_usuario);
-
-    print(_usuario.toString());
-    if (_usuario.nome != "") {
+    if (_usuario.id > 0) {
+      await UsuarioDAO.searchId(_usuario);
+      print(_usuario.toString());
       _nomeController.text = _usuario.nome;
+      _loginController.text = _usuario.login;
       _emailController.text = _usuario.email;
       _senhaController.text = _usuario.senha;
-      if (_usuario.imagem != '') {
+      if ((_usuario.imagem != '') && (_usuario.imagem != 'assets/pictures/profile-picture.jpg')) {
         final imageTemp = File(_usuario.imagem);
         setState(() => _arquivo = imageTemp);
       }
-    } else
-      _usuario.id = 0;
+    }
+  }
+
+  void _MensagemEmailExiste(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+            title: const Text('Houve algum Erro'),
+            content: SingleChildScrollView(
+              child: ListBody(children: const <Widget>[
+                Text('Email já existe!'),
+              ]),
+            )));
+  }
+
+  void _MensagemLoginExiste(BuildContext context) {
+    showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+            title: const Text('Houve algum Erro'),
+            content: SingleChildScrollView(
+              child: ListBody(children: const <Widget>[
+                Text('Login já existe!'),
+              ]),
+            )));
   }
 
   void CadastrarUsuario() async {
-    _usuario.nome = _nomeController.text;
-    _usuario.login = _loginController.text;
-    _usuario.email = _emailController.text;
-    _usuario.senha = _senhaController.text;
-    _usuario.imagem = _verificarCaminhoImagem()!;
-
-    if (_usuario.id < 1) {
-      UsuarioDAO.insert(_usuario);
-    } else {
-      UsuarioDAO.update(_usuario);
+    bool camposCertos = true;
+    if (_loginController.text != _usuario.login) {
+      if (await UsuarioDAO.existLogin(_loginController.text)) {
+        camposCertos = false;
+        _MensagemLoginExiste(context);
+      }
+    }
+    if (_emailController.text != _usuario.email) {
+      if (await UsuarioDAO.existEmail(_emailController.text)) {
+        camposCertos = false;
+        _MensagemEmailExiste(context);
+      }
     }
 
-    Navigator.pop(context, false);
+    if (camposCertos) {
+      _usuario.nome = _nomeController.text;
+      _usuario.login = _loginController.text;
+      _usuario.email = _emailController.text;
+      _usuario.senha = _senhaController.text;
+      _usuario.imagem = _verificarCaminhoImagem()!;
+
+      if (widget.edicaoUsuario) {
+        await UsuarioDAO.update(_usuario);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PrincipalPage(_usuario),
+          ),
+        );
+      } else {
+        await UsuarioDAO.insert(_usuario);
+        Navigator.pop(context, false);
+      }
+    }
   }
 
   Future<void> MostraDialogoEscolha(BuildContext context) {
@@ -210,200 +261,210 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
   }
 
   Widget corpo(context) {
-    return Container(
-      padding: EdgeInsets.only(top: 10, left: 40, right: 40),
-      color: Colors.white,
-      child: ListView(
-        children: <Widget>[
-          Container(
-            width: 300,
-            height: 298,
-            alignment: Alignment(0.0, 1.15),
-            child: Column(
-              children: [
-                Container(
-                  width: 240,
-                  height: 240,
-                  child: FittedBox(
-                      fit: BoxFit.fill, // otherwise the logo will be tiny
-                      child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
-                ),
-                Container(
-                  height: 56,
-                  width: 56,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: Color(0XFFEF5350),
-                    border: Border.all(
-                      width: 1.0,
-                      color: const Color(0xFFFFFFFF),
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(56),
-                    ),
+    return Form(
+      key: _formKey,
+      child: Container(
+        padding: EdgeInsets.only(top: 10, left: 40, right: 40),
+        color: Colors.white,
+        child: ListView(
+          children: <Widget>[
+            Container(
+              width: 300,
+              height: 298,
+              alignment: Alignment(0.0, 1.15),
+              child: Column(
+                children: [
+                  Container(
+                    width: 240,
+                    height: 240,
+                    child: FittedBox(
+                        fit: BoxFit.fill, // otherwise the logo will be tiny
+                        child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
                   ),
-                  child: SizedBox.expand(
-                    child: TextButton(
-                      child: Icon(
-                        Icons.add,
-                        color: Colors.white,
+                  Container(
+                    height: 56,
+                    width: 56,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Color(0XFFEF5350),
+                      border: Border.all(
+                        width: 1.0,
+                        color: const Color(0xFFFFFFFF),
                       ),
-                      onPressed: () async {
-                        await MostraDialogoEscolha(context);
-                      },
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(56),
+                      ),
+                    ),
+                    child: SizedBox.expand(
+                      child: TextButton(
+                        child: Icon(
+                          Icons.add,
+                          color: Colors.white,
+                        ),
+                        onPressed: () async {
+                          await MostraDialogoEscolha(context);
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          SizedBox(
-            height: 20,
-          ),
-          TextFormField(
-            controller: _nomeController,
-            // autofocus: true,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: Padding(
-                padding: EdgeInsets.only(top: 15), // add padding to adjust icon
-                child: Icon(
-                  Icons.person,
-                  color: Colors.red[400],
+            SizedBox(
+              height: 20,
+            ),
+            TextFormField(
+              controller: _nomeController,
+              validator: Validators.required('Nome não pode ficar em branco.'),
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(top: 15), // add padding to adjust icon
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.red[400],
+                  ),
+                ),
+                labelText: "Nome",
+                labelStyle: TextStyle(
+                  color: Colors.black38,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20,
                 ),
               ),
-              labelText: "Nome",
-              labelStyle: TextStyle(
-                color: Colors.black38,
-                fontWeight: FontWeight.w400,
+              style: TextStyle(
                 fontSize: 20,
               ),
             ),
-            style: TextStyle(
-              fontSize: 20,
+            SizedBox(
+              height: 10,
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextFormField(
-            controller: _loginController,
-            // autofocus: true,
-            keyboardType: TextInputType.text,
-            decoration: InputDecoration(
-              prefixIcon: Padding(
-                padding: EdgeInsets.only(top: 15), // add padding to adjust icon
-                child: Icon(
-                  Icons.person,
-                  color: Colors.red[400],
+            TextFormField(
+              controller: _loginController,
+              validator: Validators.required('Login não pode ficar em branco.'),
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(top: 15), // add padding to adjust icon
+                  child: Icon(
+                    Icons.person,
+                    color: Colors.red[400],
+                  ),
+                ),
+                labelText: "Login",
+                labelStyle: TextStyle(
+                  color: Colors.black38,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20,
                 ),
               ),
-              labelText: "Login",
-              labelStyle: TextStyle(
-                color: Colors.black38,
-                fontWeight: FontWeight.w400,
+              style: TextStyle(
                 fontSize: 20,
               ),
             ),
-            style: TextStyle(
-              fontSize: 20,
+            SizedBox(
+              height: 10,
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextFormField(
-            controller: _emailController,
-            // autofocus: true,
-            keyboardType: TextInputType.emailAddress,
-            decoration: InputDecoration(
-              prefixIcon: Padding(
-                padding: EdgeInsets.only(top: 15), // add padding to adjust icon
-                child: Icon(
-                  Icons.email,
-                  color: Colors.red[400],
+            TextFormField(
+              controller: _emailController,
+              validator: Validators.compose([
+                Validators.required('Email não pode ficar em branco.'),
+              ]),
+              keyboardType: TextInputType.emailAddress,
+              decoration: InputDecoration(
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(top: 15), // add padding to adjust icon
+                  child: Icon(
+                    Icons.email,
+                    color: Colors.red[400],
+                  ),
+                ),
+                labelText: "E-mail",
+                labelStyle: TextStyle(
+                  color: Colors.black38,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20,
                 ),
               ),
-              labelText: "E-mail",
-              labelStyle: TextStyle(
-                color: Colors.black38,
-                fontWeight: FontWeight.w400,
+              style: TextStyle(
                 fontSize: 20,
               ),
             ),
-            style: TextStyle(
-              fontSize: 20,
+            SizedBox(
+              height: 10,
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          TextFormField(
-            controller: _senhaController,
-            // autofocus: true,
-            keyboardType: TextInputType.text,
-            obscureText: true,
-            decoration: InputDecoration(
-              prefixIcon: Padding(
-                padding: EdgeInsets.only(top: 15), // add padding to adjust icon
-                child: Icon(
-                  Icons.lock,
-                  color: Colors.red[400],
+            TextFormField(
+              controller: _senhaController,
+              validator: Validators.required('Senha não pode ficar em branco.'),
+              keyboardType: TextInputType.text,
+              obscureText: true,
+              decoration: InputDecoration(
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(top: 15), // add padding to adjust icon
+                  child: Icon(
+                    Icons.lock,
+                    color: Colors.red[400],
+                  ),
+                ),
+                labelText: "Senha",
+                labelStyle: TextStyle(
+                  color: Colors.black38,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 20,
                 ),
               ),
-              labelText: "Senha",
-              labelStyle: TextStyle(
-                color: Colors.black38,
-                fontWeight: FontWeight.w400,
-                fontSize: 20,
+              style: TextStyle(fontSize: 20),
+            ),
+            SizedBox(
+              height: 10,
+            ),
+            Container(
+              height: 60,
+              alignment: Alignment.centerLeft,
+              decoration: BoxDecoration(
+                color: Color(0XFFEF5350),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(5),
+                ),
+              ),
+              child: SizedBox.expand(
+                child: TextButton(
+                    child: Text(
+                      "Cadastrar/Salvar",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 20,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        CadastrarUsuario();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Erro! Existem campos em branco ou preenchidos incorretamente.')),
+                        );
+                      }
+                    }),
               ),
             ),
-            style: TextStyle(fontSize: 20),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            height: 60,
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              color: Color(0XFFEF5350),
-              borderRadius: BorderRadius.all(
-                Radius.circular(5),
-              ),
+            SizedBox(
+              height: 10,
             ),
-            child: SizedBox.expand(
+            Container(
+              height: 40,
+              alignment: Alignment.center,
               child: TextButton(
                 child: Text(
-                  "Cadastrar",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 20,
-                  ),
+                  "Cancelar",
                   textAlign: TextAlign.center,
                 ),
-                onPressed: () {
-                  CadastrarUsuario();
-                },
+                onPressed: () => Navigator.pop(context, false),
               ),
             ),
-          ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            height: 40,
-            alignment: Alignment.center,
-            child: TextButton(
-              child: Text(
-                "Cancelar",
-                textAlign: TextAlign.center,
-              ),
-              onPressed: () => Navigator.pop(context, false),
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

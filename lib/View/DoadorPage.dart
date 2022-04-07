@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:doa_sangue/Model/Validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:doa_sangue/Model/Doador.dart';
@@ -7,15 +8,18 @@ import 'package:brasil_fields/brasil_fields.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:doa_sangue/Connection/DAO/DoadorDAO.dart';
 
-class CadastroPrincipalPage extends StatefulWidget {
-  const CadastroPrincipalPage();
+class CadastroDoadorPage extends StatefulWidget {
+  int idUsuario;
+
+  CadastroDoadorPage(this.idUsuario);
 
   @override
   _CadastroDoadorPage createState() => _CadastroDoadorPage();
 }
 
-class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
+class _CadastroDoadorPage extends State<CadastroDoadorPage> {
   // variaveis globais
+  final _formKey = GlobalKey<FormState>();
   Doador _doador = Doador();
   var CaminhoImagem = "assets/pictures/profile-picture.jpg";
   bool _tipoDoador = false;
@@ -76,11 +80,11 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
   // Functions
 
   Future _carregaCamposDoador() async {
-    _doadorExiste = await DoadorDAO.isValidDoador(1);
+    _doador.id = await DoadorDAO.returnDoadorId(widget.idUsuario);
+    _doadorExiste = _doador.id > 0;
 
     if (_doadorExiste) {
-      _doador.id = 1;
-      await DoadorDAO.search(_doador);
+      await DoadorDAO.searchId(_doador);
       _nomeController.text = _doador.nome_completo;
       _nome_maeController.text = _doador.nome_mae;
       _nome_paiController.text = _doador.nome_pai;
@@ -102,8 +106,6 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
         final imageTemp = File(_doador.imagem);
         setState(() => _arquivo = imageTemp);
       }
-    } else {
-      _doador.id = 0;
     }
 
     print(_doador);
@@ -141,6 +143,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
     _doador.id_carteira_doador = _id_carteiraController.text;
     _doador.email_doador = _email_doadorController.text;
     _doador.imagem = _verificarCaminhoImagem()!;
+    _doador.id_usuario = widget.idUsuario;
 
     if (_tipoDoador) {
       _doador.email_solicitante = _email_solicitanteController.text;
@@ -233,101 +236,6 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
             ),
           );
         });
-  }
-
-  _camposInsercaoTexto(String textoLabel, int length, TextEditingController controller, TextInputType type, bool enabled) {
-    return TextFormField(
-      enabled: enabled,
-      controller: controller,
-      inputFormatters: [
-        LengthLimitingTextInputFormatter(length),
-      ],
-      keyboardType: type,
-      decoration: InputDecoration(
-        labelText: textoLabel,
-        labelStyle: TextStyle(
-          color: Colors.black38,
-          fontWeight: FontWeight.w400,
-          fontSize: 18,
-        ),
-      ),
-      style: TextStyle(
-        fontSize: 18,
-      ),
-    );
-  }
-
-  _camposInsercaoTextoNumber(String textoLabel, int length, TextEditingController controller, TextInputType type, bool enabled) {
-    return TextFormField(
-      enabled: enabled,
-      controller: controller,
-      inputFormatters: [LengthLimitingTextInputFormatter(length), FilteringTextInputFormatter.digitsOnly],
-      keyboardType: type,
-      decoration: InputDecoration(
-        labelText: textoLabel,
-        labelStyle: TextStyle(
-          color: Colors.black38,
-          fontWeight: FontWeight.w400,
-          fontSize: 18,
-        ),
-      ),
-      style: TextStyle(
-        fontSize: 18,
-      ),
-    );
-  }
-
-  _camposInsercaoTextoComFiltro(
-    String textoLabel,
-    TextEditingController controller,
-    TextInputType type,
-    TextInputFormatter filtro,
-  ) {
-    return TextFormField(
-      controller: controller,
-      inputFormatters: [FilteringTextInputFormatter.digitsOnly, filtro],
-      keyboardType: type,
-      decoration: InputDecoration(
-        labelText: textoLabel,
-        labelStyle: TextStyle(
-          color: Colors.black38,
-          fontWeight: FontWeight.w400,
-          fontSize: 18,
-        ),
-      ),
-      style: TextStyle(
-        fontSize: 18,
-      ),
-    );
-  }
-
-  _montaComboBoxPadrao(String pValue, String pTitle, List<String> pList) {
-    return DropdownButtonFormField<String>(
-      decoration: InputDecoration(
-        filled: true,
-        labelText: pTitle,
-        labelStyle: TextStyle(
-          color: Colors.black38,
-          fontWeight: FontWeight.w400,
-          fontSize: 20,
-        ),
-      ),
-      value: pValue,
-      // icon: const Icon(Icons.),
-      elevation: 16,
-      style: const TextStyle(color: Colors.black38),
-      onChanged: (String? newValue) {
-        setState(() {
-          pValue = newValue!;
-        });
-      },
-      items: pList.map<DropdownMenuItem<String>>((String value) {
-        return DropdownMenuItem<String>(
-          value: value,
-          child: Text(value),
-        );
-      }).toList(),
-    );
   }
 
   _montaComboBoxTipoSangue() {
@@ -498,170 +406,408 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
       );
 
   Widget _corpo(context) {
-    return Container(
-      padding: EdgeInsets.only(top: 10, left: 20, right: 20),
-      color: Colors.white,
-      child: Scrollbar(
-        isAlwaysShown: true,
-        child: ListView(
-          children: <Widget>[
-            Container(
-              width: 300,
-              height: 300,
-              alignment: Alignment(0.0, 1.15),
-              child: Column(
-                children: [
-                  Container(
-                    width: 240,
-                    height: 240,
-                    child: FittedBox(
-                        fit: BoxFit.fill, // otherwise the logo will be tiny
-                        child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
-                  ),
-                  Container(
-                    height: 56,
-                    width: 56,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Color(0XFFEF5350),
-                      border: Border.all(
-                        width: 1.0,
-                        color: const Color(0xFFFFFFFF),
-                      ),
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(56),
-                      ),
+    return Form(
+      key: _formKey,
+      child: Container(
+        padding: EdgeInsets.only(top: 10, left: 20, right: 20),
+        color: Colors.white,
+        child: Scrollbar(
+          isAlwaysShown: true,
+          child: ListView(
+            children: <Widget>[
+              Container(
+                width: 300,
+                height: 300,
+                alignment: Alignment(0.0, 1.15),
+                child: Column(
+                  children: [
+                    Container(
+                      width: 240,
+                      height: 240,
+                      child: FittedBox(
+                          fit: BoxFit.fill, // otherwise the logo will be tiny
+                          child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
                     ),
-                    child: SizedBox.expand(
-                      child: TextButton(
-                        child: Icon(
-                          Icons.add,
-                          color: Colors.white,
+                    Container(
+                      height: 56,
+                      width: 56,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: Color(0XFFEF5350),
+                        border: Border.all(
+                          width: 1.0,
+                          color: const Color(0xFFFFFFFF),
                         ),
-                        onPressed: () async {
-                          await _mostraDialogoEscolha(context);
-                        },
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(56),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            _camposInsercaoTexto("Nome Completo", 50, _nomeController, TextInputType.text, true),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTexto("Nome Mãe", 50, _nome_maeController, TextInputType.text, true),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTexto("Nome Pai", 50, _nome_paiController, TextInputType.text, true),
-            const SizedBox(
-              height: 10,
-            ),
-            _montaComboBoxTipoDoador(),
-            _montaComboBoxGenero(),
-            _montaComboBoxTipoSangue(),
-            _montaComboBoxUF(),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTextoComFiltro("CPF", _cpfController, TextInputType.number, CpfInputFormatter()),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTextoComFiltro("Data Nascimento", _data_nascController, TextInputType.datetime, DataInputFormatter()),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTextoNumber("RG", 10, _rgController, TextInputType.number, true),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTextoNumber("ID Carteira Doador", 10, _id_carteiraController, TextInputType.number, true),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTextoComFiltro("Celular", _celularController, TextInputType.number, TelefoneInputFormatter()),
-            const SizedBox(
-              height: 10,
-            ),
-            _camposInsercaoTexto("Email", 50, _email_doadorController, TextInputType.emailAddress, true),
-            const SizedBox(
-              height: 10,
-            ),
-            Visibility(
-              visible: _tipoDoador, // condition here
-              child: Container(
-                child: ListView(
-                  children: <Widget>[
-                    _camposInsercaoTexto(
-                        "Email Solicitante", 50, _email_solicitanteController, TextInputType.emailAddress, _tipoDoador),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _camposInsercaoTexto("Local Internação ", 50, _local_internacaoController, TextInputType.text, _tipoDoador),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _camposInsercaoTexto("Motivo", 50, _motivoController, TextInputType.text, _tipoDoador),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _camposInsercaoTexto("Quantidade Bolsas ", 4, _qtd_bolsasController, TextInputType.number, _tipoDoador),
-                    const SizedBox(
-                      height: 10,
+                      child: SizedBox.expand(
+                        child: TextButton(
+                          child: Icon(
+                            Icons.add,
+                            color: Colors.white,
+                          ),
+                          onPressed: () async {
+                            await _mostraDialogoEscolha(context);
+                          },
+                        ),
+                      ),
                     ),
                   ],
                 ),
-                width: double.infinity,
-                height: 300.0,
               ),
-            ),
-            Container(
-              height: 60,
-              alignment: Alignment.centerLeft,
-              decoration: BoxDecoration(
-                color: Color(0XFFEF5350),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(5),
+              const SizedBox(
+                height: 20,
+              ),
+              TextFormField(
+                validator: Validators.required('Nome Completo não pode ficar em branco.'),
+                enabled: true,
+                controller: _nomeController,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(50),
+                ],
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                  labelText: "Nome Completo",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
                 ),
               ),
-              child: SizedBox.expand(
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                validator: Validators.required('Nome Mãe não pode ficar em branco.'),
+                enabled: true,
+                controller: _nome_maeController,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(50),
+                ],
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                  labelText: "Nome Mãe",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                validator: Validators.required('Nome Pai não pode ficar em branco.'),
+                enabled: true,
+                controller: _nome_paiController,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(50),
+                ],
+                keyboardType: TextInputType.text,
+                decoration: InputDecoration(
+                  labelText: "Nome Pai",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              _montaComboBoxTipoDoador(),
+              _montaComboBoxGenero(),
+              _montaComboBoxTipoSangue(),
+              _montaComboBoxUF(),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                validator: Validators.required('CPF não pode ficar em branco.'),
+                enabled: true,
+                controller: _cpfController,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                  CpfInputFormatter(),
+                ],
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: "CPF",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                validator: Validators.required('Data Nascimento não pode ficar em branco.'),
+                enabled: true,
+                controller: _data_nascController,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly, DataInputFormatter()],
+                keyboardType: TextInputType.datetime,
+                decoration: InputDecoration(
+                  labelText: "Data Nascimento",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                validator: Validators.required('RG não pode ficar em branco.'),
+                enabled: true,
+                controller: _rgController,
+                inputFormatters: [LengthLimitingTextInputFormatter(10), FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: "RG",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                enabled: true,
+                controller: _id_carteiraController,
+                inputFormatters: [LengthLimitingTextInputFormatter(10), FilteringTextInputFormatter.digitsOnly],
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: "ID Carteira Doador",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                controller: _celularController,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly, TelefoneInputFormatter()],
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  labelText: "Celular",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextFormField(
+                validator: Validators.required('Email não pode ficar em branco.'),
+                enabled: true,
+                controller: _email_doadorController,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(50),
+                ],
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  labelText: "Email",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 18,
+                  ),
+                ),
+                style: TextStyle(
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Visibility(
+                visible: _tipoDoador, // condition here
+                child: Container(
+                  child: ListView(
+                    children: <Widget>[
+                      TextFormField(
+                        validator: Validators.required('Email Solicitante não pode ficar em branco.'),
+                        enabled: _tipoDoador,
+                        controller: _email_solicitanteController,
+                        inputFormatters: [LengthLimitingTextInputFormatter(50), FilteringTextInputFormatter.digitsOnly],
+                        keyboardType: TextInputType.emailAddress,
+                        decoration: InputDecoration(
+                          labelText: "Email Solicitante",
+                          labelStyle: TextStyle(
+                            color: Colors.black38,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 18,
+                          ),
+                        ),
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        validator: Validators.required('Local Internação não pode ficar em branco.'),
+                        enabled: _tipoDoador,
+                        controller: _local_internacaoController,
+                        inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          labelText: "Local Internação",
+                          labelStyle: TextStyle(
+                            color: Colors.black38,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 18,
+                          ),
+                        ),
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        validator: Validators.required('Motivo não pode ficar em branco.'),
+                        enabled: _tipoDoador,
+                        controller: _motivoController,
+                        inputFormatters: [LengthLimitingTextInputFormatter(50)],
+                        keyboardType: TextInputType.text,
+                        decoration: InputDecoration(
+                          labelText: "Motivo",
+                          labelStyle: TextStyle(
+                            color: Colors.black38,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 18,
+                          ),
+                        ),
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      TextFormField(
+                        validator: Validators.required('Quantidade Bolsas não pode ficar em branco.'),
+                        enabled: _tipoDoador,
+                        controller: _qtd_bolsasController,
+                        inputFormatters: [LengthLimitingTextInputFormatter(4), FilteringTextInputFormatter.digitsOnly],
+                        keyboardType: TextInputType.number,
+                        decoration: InputDecoration(
+                          labelText: "Quantidade Bolsas",
+                          labelStyle: TextStyle(
+                            color: Colors.black38,
+                            fontWeight: FontWeight.w400,
+                            fontSize: 18,
+                          ),
+                        ),
+                        style: TextStyle(
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                    ],
+                  ),
+                  width: double.infinity,
+                  height: 300.0,
+                ),
+              ),
+              Container(
+                height: 60,
+                alignment: Alignment.centerLeft,
+                decoration: BoxDecoration(
+                  color: Color(0XFFEF5350),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(5),
+                  ),
+                ),
+                child: SizedBox.expand(
+                  child: TextButton(
+                    child: Text(
+                      "Cadastrar/Alterar",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        fontSize: 18,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {
+                        _cadastrarDoador();
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Erro! Existem campos em branco ou preenchidos incorretamente.')),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+              Container(
+                height: 40,
+                alignment: Alignment.center,
                 child: TextButton(
                   child: Text(
-                    "Cadastrar/Alterar",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
+                    "Cancelar",
                     textAlign: TextAlign.center,
                   ),
-                  onPressed: () {
-                    _cadastrarDoador();
-                  },
+                  onPressed: () => Navigator.pop(context, false),
                 ),
               ),
-            ),
-            SizedBox(
-              height: 10,
-            ),
-            Container(
-              height: 40,
-              alignment: Alignment.center,
-              child: TextButton(
-                child: Text(
-                  "Cancelar",
-                  textAlign: TextAlign.center,
-                ),
-                onPressed: () => Navigator.pop(context, false),
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

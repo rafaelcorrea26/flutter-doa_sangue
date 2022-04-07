@@ -39,10 +39,7 @@ class UsuarioDAO {
   static update(Usuario usuario) async {
     try {
       var _db = await Connection.get();
-      await _db.update(
-        'usuario',
-        usuario.toMap(),
-      );
+      await _db.update('usuario', usuario.toMap(), where: "id = ?", whereArgs: [usuario.id]);
     } catch (ex) {
       print(ex);
       return;
@@ -56,6 +53,26 @@ class UsuarioDAO {
     } on Exception catch (_) {
       print("Erro ao deletar id: "[id]);
       throw Exception("Erro ao deletar id: "[id]);
+    }
+  }
+
+  static Future<bool> existLogin(String login) async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.query('usuario', where: " login = ?", whereArgs: [login]);
+    if (retorno.isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  static Future<bool> existEmail(String email) async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.query('usuario', where: " email = ?", whereArgs: [email]);
+    if (retorno.isNotEmpty) {
+      return true;
+    } else {
+      return false;
     }
   }
 

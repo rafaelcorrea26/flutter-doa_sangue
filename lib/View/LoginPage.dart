@@ -1,5 +1,6 @@
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
+import 'package:doa_sangue/Model/Validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Login.CadastrarPage.dart';
@@ -108,6 +109,9 @@ Widget corpo(context) {
           height: 10,
         ),
         TextFormField(
+          validator: Validators.compose([
+            Validators.required('Senha não pode ficar em branco.'),
+          ]),
           controller: _senhaControler,
           keyboardType: TextInputType.text,
           obscureText: true,
@@ -204,7 +208,7 @@ Widget corpo(context) {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CadastroUsuarioPage(),
+                  builder: (context) => CadastroUsuarioPage(0, false),
                 ),
               );
             },

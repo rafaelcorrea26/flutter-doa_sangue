@@ -1,8 +1,8 @@
 final createTableUsuario = "CREATE TABLE IF NOT EXISTS usuario("
     "  id INTEGER PRIMARY KEY"
-    ", nome TEXT NOT NULL UNIQUE"
-    ", login TEXT NOT NULL UNIQUE"
-    ", email TEXT NOT NULL UNIQUE"
+    ", nome TEXT NOT NULL"
+    ", login TEXT NOT NULL"
+    ", email TEXT NOT NULL"
     ", senha TEXT"
     ", imagem TEXT)";
 
@@ -25,4 +25,6 @@ final createTableDoador = "CREATE TABLE IF NOT EXISTS doador("
     ", local_internacao TEXT"
     ", motivo  TEXT"
     ", qtd_bolsas INTEGER"
-    ", imagem TEXT )";
+    ", imagem TEXT      "
+    ", id_usuario INTEGER "
+    ", FOREIGN KEY(id_usuario) REFERENCES usuario (id) )";
