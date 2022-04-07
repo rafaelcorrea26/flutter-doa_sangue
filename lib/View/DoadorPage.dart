@@ -330,6 +330,93 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
     );
   }
 
+  _montaComboBoxTipoSangue() {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        filled: true,
+        labelText: 'Tipo Sangue',
+        labelStyle: TextStyle(
+          color: Colors.black38,
+          fontWeight: FontWeight.w400,
+          fontSize: 20,
+        ),
+      ),
+      value: _dropdownSangValue,
+      // icon: const Icon(Icons.),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black38),
+      onChanged: (String? newValue) {
+        setState(() {
+          _dropdownSangValue = newValue!;
+        });
+      },
+      items: _tipo_Sangue.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  _montaComboBoxGenero() {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        filled: true,
+        labelText: 'Gênero',
+        labelStyle: TextStyle(
+          color: Colors.black38,
+          fontWeight: FontWeight.w400,
+          fontSize: 20,
+        ),
+      ),
+      value: _dropdownGenValue,
+      // icon: const Icon(Icons.),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black38),
+      onChanged: (String? newValue) {
+        setState(() {
+          _dropdownGenValue = newValue!;
+        });
+      },
+      items: _genero.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
+  _montaComboBoxUF() {
+    return DropdownButtonFormField<String>(
+      decoration: InputDecoration(
+        filled: true,
+        labelText: 'UF',
+        labelStyle: TextStyle(
+          color: Colors.black38,
+          fontWeight: FontWeight.w400,
+          fontSize: 20,
+        ),
+      ),
+      value: _dropdownUFValue,
+      // icon: const Icon(Icons.),
+      elevation: 16,
+      style: const TextStyle(color: Colors.black38),
+      onChanged: (String? newValue) {
+        setState(() {
+          _dropdownUFValue = newValue!;
+        });
+      },
+      items: _estado.map<DropdownMenuItem<String>>((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+    );
+  }
+
   _montaComboBoxTipoDoador() {
     return DropdownButtonFormField<String>(
       decoration: InputDecoration(
@@ -389,7 +476,7 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
       sourcePath: filePath,
       maxWidth: 600,
       maxHeight: 600,
-      aspectRatio: CropAspectRatio(ratioX: 16, ratioY: 9),
+      aspectRatio: CropAspectRatio(ratioX: 9, ratioY: 9),
       androidUiSettings: androidUiSettings(),
       iosUiSettings: iosUiSettings(),
     );
@@ -476,9 +563,9 @@ class _CadastroDoadorPage extends State<CadastroPrincipalPage> {
               height: 10,
             ),
             _montaComboBoxTipoDoador(),
-            _montaComboBoxPadrao(_dropdownGenValue, 'Gênero', _genero),
-            _montaComboBoxPadrao(_dropdownSangValue, 'Tipo Sangue', _tipo_Sangue),
-            _montaComboBoxPadrao(_dropdownUFValue, 'UF', _estado),
+            _montaComboBoxGenero(),
+            _montaComboBoxTipoSangue(),
+            _montaComboBoxUF(),
             const SizedBox(
               height: 10,
             ),

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:doa_sangue/View/AgendamentoPage.dart';
+import 'package:doa_sangue/View/Login.CadastrarPage.dart';
 import 'package:flutter/material.dart';
 import 'ConfiguracaoPage.dart';
 import 'DoadorPage.dart';
@@ -52,19 +53,33 @@ class _PrincipalPageState extends State<PrincipalPage> {
           padding: EdgeInsets.zero,
           children: <Widget>[
             UserAccountsDrawerHeader(
-              accountEmail: Text(widget._usuario.email), //"rafael.fs.camaqua@gmail.com"),
-              accountName: Text(widget._usuario.nome), //"Rafael"),
-
+              accountEmail: Text(widget._usuario.email),
+              accountName: Text(widget._usuario.nome),
               decoration: BoxDecoration(
                 color: const Color(0XFFEF5350),
               ),
-              currentAccountPicture: CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.white,
-                child: ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
-              ),
+              currentAccountPicture: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem),
+              // currentAccountPicture: CircleAvatar(
+              //   radius: 30,
+              //   backgroundColor: Colors.white,
+              //   child: ClipRRect(
+              //       borderRadius: BorderRadius.circular(50),
+              //       child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
+              // ),
+            ),
+            ListTile(
+              leading: Icon(Icons.person),
+              title: Text("Editar dados Usuário"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CadastroUsuarioPage(),
+                  ),
+                );
+                //Navegar para outra página
+              },
             ),
             ListTile(
               leading: Icon(Icons.person),

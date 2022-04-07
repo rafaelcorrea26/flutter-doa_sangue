@@ -156,11 +156,12 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
   cropImage(filePath) async {
     File? croppedImage = await ImageCropper().cropImage(
       sourcePath: filePath,
-      maxWidth: 600,
-      maxHeight: 600,
-      aspectRatio: CropAspectRatio(ratioX: 16, ratioY: 9),
+      maxWidth: 240,
+      maxHeight: 240,
+      aspectRatio: CropAspectRatio(ratioX: 9, ratioY: 9),
       androidUiSettings: androidUiSettings(),
       iosUiSettings: iosUiSettings(),
+      cropStyle: CropStyle.rectangle,
     );
     if (croppedImage != null) {
       final imageTemp = croppedImage; //File(croppedImage.path);
@@ -216,7 +217,7 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
         children: <Widget>[
           Container(
             width: 300,
-            height: 300,
+            height: 298,
             alignment: Alignment(0.0, 1.15),
             child: Column(
               children: [
