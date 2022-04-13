@@ -6,7 +6,6 @@ import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:email_validator/email_validator.dart';
 import 'PrincipalPage.dart';
 
 class CadastroUsuarioPage extends StatefulWidget {

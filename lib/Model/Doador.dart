@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 class Doador {
   int id = 0;
   String nome_completo = "";
@@ -95,5 +97,10 @@ class Doador {
         'qtd_bolsas: $qtd_bolsas,'
         'imagem: $imagem,'
         'id_usuario: $id_usuario }';
+  }
+
+  String? geraJson() {
+    String dados = json.encode(this);
+    return dados;
   }
 }

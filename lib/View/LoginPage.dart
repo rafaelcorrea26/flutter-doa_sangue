@@ -1,4 +1,5 @@
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
+import 'package:doa_sangue/Connection/FinanceiroTeste.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:doa_sangue/Model/Validators.dart';
 import 'package:flutter/material.dart';
@@ -145,13 +146,16 @@ Widget corpo(context) {
               "Recuperar Senha",
               textAlign: TextAlign.right,
             ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const ResetarPasswordPage(),
-                ),
-              );
+            onPressed: () async {
+              ConnectionApiFinanceiro api = ConnectionApiFinanceiro();
+              print(await api.pegaToken());
+
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(
+              //     builder: (context) => const ResetarPasswordPage(),
+              //   ),
+              // );
             },
           ),
         ),

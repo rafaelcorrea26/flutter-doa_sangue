@@ -1,9 +1,9 @@
 import 'dart:io';
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
-import 'package:doa_sangue/View/AgendamentoPage.dart';
 import 'package:doa_sangue/View/Login.CadastrarPage.dart';
 import 'package:flutter/material.dart';
+import 'AgendamentoPage.dart';
 import 'ConfiguracaoPage.dart';
 import 'DoadorPage.dart';
 import 'FaqPage.dart';
@@ -109,7 +109,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AgendamentoDoacaoPage(),
+                    builder: (context) => AgendamentoPage(),
                   ),
                 );
               },
