@@ -1,12 +1,11 @@
-import 'dart:io';
-import 'package:doa_sangue/Model/Validators.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
+import 'package:doa_sangue/Controller/ImagemHelper.dart';
+import 'package:doa_sangue/Controller/Validators.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'PrincipalPage.dart';
+import 'dart:io';
 
 class CadastroUsuarioPage extends StatefulWidget {
   int idUsuario;
@@ -26,16 +25,6 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
   TextEditingController _loginController = TextEditingController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _senhaController = TextEditingController();
-  File? _arquivo;
-  XFile? imageFile = null;
-
-  String VerificarCaminhoImagem() {
-    if (imageFile == null) {
-      return CaminhoImagem;
-    } else {
-      return imageFile!.path;
-    }
-  }
 
   _CadastroUsuarioPage();
 
@@ -44,14 +33,6 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
     super.initState();
     _usuario.id = widget.idUsuario;
     _carregaCampos();
-  }
-
-  String? _verificarCaminhoImagem() {
-    if (_arquivo == null) {
-      return CaminhoImagem;
-    } else {
-      return _arquivo?.path;
-    }
   }
 
   void _carregaCampos() async {
@@ -63,8 +44,8 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
       _emailController.text = _usuario.email;
       _senhaController.text = _usuario.senha;
       if ((_usuario.imagem != '') && (_usuario.imagem != 'assets/pictures/profile-picture.jpg')) {
-        final imageTemp = File(_usuario.imagem);
-        setState(() => _arquivo = imageTemp);
+        imageTemp = File(_usuario.imagem);
+        setState(() => arquivo = imageTemp);
       }
     }
   }
@@ -113,7 +94,7 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
       _usuario.login = _loginController.text;
       _usuario.email = _emailController.text;
       _usuario.senha = _senhaController.text;
-      _usuario.imagem = _verificarCaminhoImagem()!;
+      _usuario.imagem = verificarCaminhoImagem()!;
 
       if (widget.edicaoUsuario) {
         await UsuarioDAO.update(_usuario);
@@ -129,106 +110,6 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
       }
     }
   }
-
-  Future<void> MostraDialogoEscolha(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              "Escolha uma opção",
-              style: TextStyle(
-                color: Colors.black87,
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: [
-                  Divider(
-                    height: 1,
-                    color: Colors.red[400],
-                  ),
-                  ListTile(
-                    onTap: () {
-                      AbreGaleria(context);
-                    },
-                    title: Text("Galeria"),
-                    leading: Icon(
-                      Icons.account_box,
-                      color: Colors.red[400],
-                    ),
-                  ),
-                  Divider(
-                    height: 1,
-                    color: Colors.red[400],
-                  ),
-                  ListTile(
-                    onTap: () {
-                      AbreCamera(context);
-                    },
-                    title: Text("Câmera"),
-                    leading: Icon(
-                      Icons.camera,
-                      color: Colors.red[400],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
-  }
-
-  Future AbreCamera(BuildContext context) async {
-    try {
-      final image = await ImagePicker().pickImage(source: ImageSource.camera);
-
-      if (image == null) return;
-
-      cropImage(image.path);
-    } on PlatformException catch (e) {
-      print('Falha ao selecionar a imagem: $e');
-    }
-  }
-
-  Future AbreGaleria(BuildContext context) async {
-    try {
-      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-      if (image == null) return;
-
-      cropImage(image.path);
-    } on PlatformException catch (e) {
-      print('Falha ao selecionar a imagem: $e');
-    }
-  }
-
-  cropImage(filePath) async {
-    File? croppedImage = await ImageCropper().cropImage(
-      sourcePath: filePath,
-      maxWidth: 240,
-      maxHeight: 240,
-      aspectRatio: CropAspectRatio(ratioX: 9, ratioY: 9),
-      androidUiSettings: androidUiSettings(),
-      iosUiSettings: iosUiSettings(),
-      cropStyle: CropStyle.rectangle,
-    );
-    if (croppedImage != null) {
-      final imageTemp = croppedImage; //File(croppedImage.path);
-      setState(() => this._arquivo = imageTemp);
-    }
-  }
-
-  static IOSUiSettings iosUiSettings() => IOSUiSettings(
-        aspectRatioLockEnabled: false,
-      );
-
-  static AndroidUiSettings androidUiSettings() => AndroidUiSettings(
-        toolbarTitle: 'Ajuste a Imagem',
-        toolbarColor: Colors.red,
-        toolbarWidgetColor: Colors.white,
-        lockAspectRatio: false,
-      );
 
   void ListarUsuarios() async {
     Container(
@@ -278,7 +159,7 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
                     height: 240,
                     child: FittedBox(
                         fit: BoxFit.fill, // otherwise the logo will be tiny
-                        child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
+                        child: arquivo != null ? Image.file(arquivo!) : Image.asset(CaminhoImagem)),
                   ),
                   Container(
                     height: 56,
@@ -301,7 +182,8 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
                           color: Colors.white,
                         ),
                         onPressed: () async {
-                          await MostraDialogoEscolha(context);
+                          await mostraDialogoEscolha(context);
+                          setState(() => arquivo = imageTemp);
                         },
                       ),
                     ),

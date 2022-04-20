@@ -1,12 +1,12 @@
+//import 'package:doa_sangue/Service/ConnectionAPI.dart';
+import 'package:doa_sangue/View/Login.ResetarPasswordPage.dart';
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
-import 'package:doa_sangue/Connection/FinanceiroTeste.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
-import 'package:doa_sangue/Model/Validators.dart';
+import 'package:doa_sangue/Controller/Validators.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'Login.CadastrarPage.dart';
 import 'PrincipalPage.dart';
-import 'package:doa_sangue/View/Login.ResetarPasswordPage.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({Key? key}) : super(key: key);
@@ -146,16 +146,13 @@ Widget corpo(context) {
               "Recuperar Senha",
               textAlign: TextAlign.right,
             ),
-            onPressed: () async {
-              ConnectionApiFinanceiro api = ConnectionApiFinanceiro();
-              print(await api.pegaToken());
-
-              // Navigator.push(
-              //   context,
-              //   MaterialPageRoute(
-              //     builder: (context) => const ResetarPasswordPage(),
-              //   ),
-              // );
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ResetarPasswordPage(),
+                ),
+              );
             },
           ),
         ),

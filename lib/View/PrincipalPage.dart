@@ -1,15 +1,19 @@
 import 'dart:io';
+import 'package:doa_sangue/Connection/DAO/DoadorDAO.dart';
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
+import 'package:doa_sangue/Model/Doador.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
+import 'package:doa_sangue/Service/ConnectionAPI.dart';
+import 'package:doa_sangue/View/AgendamentoMapaPage.dart';
 import 'package:doa_sangue/View/Login.CadastrarPage.dart';
 import 'package:flutter/material.dart';
 import 'AgendamentoPage.dart';
-import 'ConfiguracaoPage.dart';
+import 'AgendamentoRequisitosPage.dart';
 import 'DoadorPage.dart';
-import 'FaqPage.dart';
 
 class PrincipalPage extends StatefulWidget {
   Usuario _usuario = Usuario();
+
   PrincipalPage(this._usuario);
 
   @override
@@ -18,7 +22,7 @@ class PrincipalPage extends StatefulWidget {
 
 class _PrincipalPageState extends State<PrincipalPage> {
   var CaminhoImagem = "assets/pictures/profile-picture-menu.jpg";
-
+  int _doadorId = 0;
   File? _arquivo;
 
   @override
@@ -38,8 +42,8 @@ class _PrincipalPageState extends State<PrincipalPage> {
     super.context;
   }
 
-  print(_usuario) {
-    throw UnimplementedError();
+  verificaExistenciaDoador() async {
+    _doadorId = await DoadorDAO.returnDoadorId(widget._usuario.id);
   }
 
   @override
@@ -105,41 +109,66 @@ class _PrincipalPageState extends State<PrincipalPage> {
               leading: Icon(Icons.calendar_today),
               title: Text("Agendamento doação sangue"),
               onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AgendamentoPage(),
-                  ),
-                );
+                if (_doadorId > 0) {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => AgendamentoPage(widget._usuario.id, widget._usuario.nome, _doadorId, 0),
+                    ),
+                  );
+                } else {
+                  // mensagem erro
+                }
               },
             ),
             ListTile(
-              leading: Icon(Icons.call_rounded),
-              title: Text("FAQ"),
+              leading: Icon(Icons.calendar_today),
+              title: Text("Agendamento requisitos doação sangue"),
               onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => FAQPage(),
+                    builder: (context) => AgendamentoRequisitosPage(widget._usuario.id, widget._usuario.nome, _doadorId),
+                  ),
+                );
+              },
+            ),
+            ListTile(
+              leading: Icon(Icons.location_city),
+              title: Text("Visualizar Local para doação sangue"),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => AgendamentoMapaPage(),
                   ),
                 ); //Navegar para outra página
               },
             ),
             ListTile(
               leading: Icon(Icons.app_settings_alt),
-              title: Text("Configuração"),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ConfiguracaoPage(),
-                  ),
-                );
+              title: Text("Teste Token API"),
+              onTap: () async {
+                ConnectionAPI api = ConnectionAPI();
+                await api.getUsuario();
               },
             ),
+            // ListTile(
+            //   leading: Icon(Icons.app_settings_alt),
+            //   title: Text("Configuração"),
+            //   onTap: () {
+            //     Navigator.pop(context);
+            //     Navigator.push(
+            //       context,
+            //       MaterialPageRoute(
+            //         builder: (context) => ConfiguracaoPage(),
+            //       ),
+            //     );
+            //   },
+            // ),
           ],
         ),
       ),

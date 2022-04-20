@@ -1,12 +1,11 @@
-import 'dart:io';
-import 'package:doa_sangue/Model/Validators.dart';
+import 'package:doa_sangue/Connection/DAO/DoadorDAO.dart';
+import 'package:doa_sangue/Controller/ImagemHelper.dart';
+import 'package:doa_sangue/Controller/Validators.dart';
+import 'package:brasil_fields/brasil_fields.dart';
+import 'package:doa_sangue/Model/Doador.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:doa_sangue/Model/Doador.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:brasil_fields/brasil_fields.dart';
-import 'package:image_cropper/image_cropper.dart';
-import 'package:doa_sangue/Connection/DAO/DoadorDAO.dart';
+import 'dart:io';
 
 class CadastroDoadorPage extends StatefulWidget {
   int idUsuario;
@@ -21,9 +20,7 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
   // variaveis globais
   final _formKey = GlobalKey<FormState>();
   Doador _doador = Doador();
-  var CaminhoImagem = "assets/pictures/profile-picture.jpg";
   bool _tipoDoador = false;
-  File? _arquivo;
   bool _doadorExiste = false;
   TextEditingController _nomeController = TextEditingController();
   TextEditingController _nome_maeController = TextEditingController();
@@ -103,20 +100,12 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
       _motivoController.text = _doador.motivo;
       _qtd_bolsasController.text = _doador.qtd_bolsas.toString();
       if (_doador.imagem != '') {
-        final imageTemp = File(_doador.imagem);
-        setState(() => _arquivo = imageTemp);
+        imageTemp = File(_doador.imagem);
+        setState(() => arquivo = imageTemp);
       }
     }
 
     print(_doador);
-  }
-
-  String? _verificarCaminhoImagem() {
-    if (_arquivo == null) {
-      return CaminhoImagem;
-    } else {
-      return _arquivo?.path;
-    }
   }
 
   _CadastroDoadorPage();
@@ -142,7 +131,7 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
     _doador.uf = _dropdownUFValue;
     _doador.id_carteira_doador = _id_carteiraController.text;
     _doador.email_doador = _email_doadorController.text;
-    _doador.imagem = _verificarCaminhoImagem()!;
+    _doador.imagem = verificarCaminhoImagem()!;
     _doador.id_usuario = widget.idUsuario;
 
     if (_tipoDoador) {
@@ -187,55 +176,6 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
       centerTitle: true,
       backgroundColor: Colors.red[400],
     );
-  }
-
-  Future _mostraDialogoEscolha(BuildContext context) {
-    return showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(
-              "Escolha uma opção",
-              style: TextStyle(
-                color: Colors.black87,
-              ),
-            ),
-            content: SingleChildScrollView(
-              child: ListBody(
-                children: [
-                  Divider(
-                    height: 1,
-                    color: Colors.red[400],
-                  ),
-                  ListTile(
-                    onTap: () {
-                      _abreGaleria(context);
-                    },
-                    title: Text("Galeria"),
-                    leading: Icon(
-                      Icons.account_box,
-                      color: Colors.red[400],
-                    ),
-                  ),
-                  Divider(
-                    height: 1,
-                    color: Colors.red[400],
-                  ),
-                  ListTile(
-                    onTap: () {
-                      _abreCamera(context);
-                    },
-                    title: Text("Câmera"),
-                    leading: Icon(
-                      Icons.camera,
-                      color: Colors.red[400],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        });
   }
 
   _montaComboBoxTipoSangue() {
@@ -355,56 +295,6 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
     );
   }
 
-  Future _abreCamera(BuildContext context) async {
-    try {
-      final image = await ImagePicker().pickImage(source: ImageSource.camera);
-
-      if (image == null) return;
-
-      cropImage(image.path);
-    } on PlatformException catch (e) {
-      print('Failed to pick image: $e');
-    }
-  }
-
-  Future _abreGaleria(BuildContext context) async {
-    try {
-      final image = await ImagePicker().pickImage(source: ImageSource.gallery);
-
-      if (image == null) return;
-
-      cropImage(image.path);
-    } on PlatformException catch (e) {
-      print('Failed to pick image: $e');
-    }
-  }
-
-  cropImage(filePath) async {
-    File? croppedImage = await ImageCropper().cropImage(
-      sourcePath: filePath,
-      maxWidth: 600,
-      maxHeight: 600,
-      aspectRatio: CropAspectRatio(ratioX: 9, ratioY: 9),
-      androidUiSettings: androidUiSettings(),
-      iosUiSettings: iosUiSettings(),
-    );
-    if (croppedImage != null) {
-      final imageTemp = croppedImage; //File(croppedImage.path);
-      setState(() => this._arquivo = imageTemp);
-    }
-  }
-
-  static IOSUiSettings iosUiSettings() => IOSUiSettings(
-        aspectRatioLockEnabled: false,
-      );
-
-  static AndroidUiSettings androidUiSettings() => AndroidUiSettings(
-        toolbarTitle: 'Ajuste a Imagem',
-        toolbarColor: Colors.red,
-        toolbarWidgetColor: Colors.white,
-        lockAspectRatio: false,
-      );
-
   Widget _corpo(context) {
     return Form(
       key: _formKey,
@@ -426,7 +316,7 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
                       height: 240,
                       child: FittedBox(
                           fit: BoxFit.fill, // otherwise the logo will be tiny
-                          child: _arquivo != null ? Image.file(_arquivo!) : Image.asset(CaminhoImagem)),
+                          child: arquivo != null ? Image.file(arquivo!) : Image.asset(CaminhoImagem)),
                     ),
                     Container(
                       height: 56,
@@ -449,7 +339,8 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
                             color: Colors.white,
                           ),
                           onPressed: () async {
-                            await _mostraDialogoEscolha(context);
+                            await mostraDialogoEscolha(context);
+                            setState(() => arquivo = imageTemp);
                           },
                         ),
                       ),
