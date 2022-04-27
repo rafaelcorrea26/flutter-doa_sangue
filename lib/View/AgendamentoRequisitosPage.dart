@@ -134,6 +134,8 @@ class _AgendamentoRequisitosPageState extends State<AgendamentoRequisitosPage> {
             requisitoDoar("Não estár com Exames/procedimentos com utilização de endoscópio nos últimos 6 meses"),
             requisitoDoar(
                 "Não estár com Ter sido exposto a situações de risco acrescido para infecções sexualmente transmissíveis (aguardar 12 meses após a exposição)"),
+            requisitoDoar(
+                "Doenças que que são inpedimentos definitivos  ter passado por um quadro de hepatite após os 11 anos de idade, evidencia clinica ou laboratorial das seguintes doenças de sangue: Hepatites B e C, AIDS( virus HIV), doenças associadas aos virus HTLV I e II e doença de chagas, uso de drogas ilícitas injetáveis e malaria. "),
             aceitaTermos(context),
             botaoContinuar(),
           ],
