@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 const _Url = "http://192.168.1.120:8001/api/";
@@ -25,7 +26,7 @@ class ConnectionAPI {
 
   // Requisição GET
 
-  Future<String> getUsuario() async {
+  Future<String> getUsuario(context) async {
     var _token = await _pegaToken();
     print(_token);
     var url = Uri.parse(_Url + 'usuario');
@@ -38,9 +39,10 @@ class ConnectionAPI {
 
     if (_resposta.statusCode == 200 || _resposta.statusCode == 204) {
       print(_resposta.body);
-      //   usuario = json.decode(resposta.body)["deck_id"]!;
+      _mostraDialogoConexaoAPI(context, 'Ativo ', _token, _resposta.body);
       return "Usuário carregado!";
     } else {
+      _mostraDialogoConexaoAPI(context, 'Inativa ', 'Erro ao conectar', '');
       return "Usuário não carregado!";
     }
   }
@@ -50,4 +52,32 @@ class ConnectionAPI {
 // put
 
 //delete
+
+  Future _mostraDialogoConexaoAPI(BuildContext context, ativo, token, body) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(
+              "Status Conexão : $ativo",
+              style: TextStyle(
+                color: Colors.black87,
+              ),
+            ),
+            content: SingleChildScrollView(
+              child: Container(
+                child: Padding(
+                  padding: EdgeInsets.all(5),
+                  child: Center(
+                    child: Text(
+                      "Access_token: $token \n \n Json Usuários: $body",
+                      style: TextStyle(color: Colors.black, fontSize: 14, fontWeight: FontWeight.normal, fontFamily: 'Poppins'),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          );
+        });
+  }
 }

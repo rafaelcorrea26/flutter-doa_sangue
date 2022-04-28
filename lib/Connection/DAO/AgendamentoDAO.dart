@@ -3,52 +3,57 @@ import 'package:doa_sangue/Model/Agendamento.dart';
 import '../Connection.dart';
 
 class AgendamentoDAO {
-  static Future<Agendamento> search(Agendamento agendamento) async {
+  Future<Map> get() async {
     var _db = await Connection.get();
-    List<Map> retorno = await _db.query('agendamento');
-    if (retorno.isNotEmpty) {
-      return agendamento.fromMap(retorno.first);
+    Map result = Map();
+    List<Map> items = await _db.query('agendamento');
+
+    if (items.isNotEmpty) {
+      result = items.first;
+    }
+    return result;
+  }
+
+  Future<List<Agendamento>> consultar() async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.rawQuery("SELECT * FROM agendamento ");
+    List<Agendamento> agendamento = [];
+    for (Map jogador in retorno) {
+      agendamento.add(Agendamento.fromMap(jogador));
+    }
+    return agendamento;
+  }
+
+  Future<List<Agendamento>> consultarTodos() async {
+    var _db = await Connection.get();
+
+    List<Map> retorno = await _db.query('agendamento', orderBy: 'id desc ');
+    List<Agendamento> agendamento = [];
+    print(retorno);
+
+    for (Map map in retorno) {
+      agendamento.add(Agendamento.fromMap(map));
+    }
+
+    return agendamento;
+  }
+
+  Future<Agendamento> searchId(int id) async {
+    var _db = await Connection.get();
+    List<Map> items = await _db.query('agendamento', where: 'id =?', whereArgs: [id]);
+
+    if (items.isNotEmpty) {
+      return Agendamento.fromMap(items.first);
     } else {
       return null!;
     }
   }
 
-  static Future<Agendamento> searchId(Agendamento agendamento) async {
-    var _db = await Connection.get();
-    List<Map> retorno = await _db.query('agendamento', where: 'id = ?', whereArgs: [agendamento.id]);
-    if (retorno.isNotEmpty) {
-      return agendamento.fromMap(retorno.first);
-    } else {
-      return null!;
-    }
-  }
-
-  static Future<bool> isValidDoador(int id) async {
-    var _db = await Connection.get();
-    List<Map> retorno = await _db.query('agendamento', where: 'id = ?', whereArgs: [id]);
-
-    if (retorno.isNotEmpty) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  static Future<int> returnDoadorId(int id_usuario) async {
-    var _db = await Connection.get();
-    List<Map> retorno = await _db.query('agendamento', where: 'id_usuario = ?', whereArgs: [id_usuario]);
-
-    if (retorno.isNotEmpty) {
-      return retorno[0]["id"];
-    } else {
-      return 0;
-    }
-  }
-
-  static Future insert(Agendamento doador) async {
+  Future insert(Agendamento agendamento) async {
     try {
       var _db = await Connection.get();
-      await _db.insert('agendamento', doador.toMap());
+      await _db.insert('agendamento', agendamento.toMap());
+      print('Agendamento inserido: ' + agendamento.id.toString());
       print('Agendamento cadastrado!');
     } catch (ex) {
       print(ex);
@@ -56,23 +61,35 @@ class AgendamentoDAO {
     }
   }
 
-  static update(Agendamento doador) async {
+  update(Agendamento agendamento) async {
     try {
       var _db = await Connection.get();
-      await _db.update('agendamento', doador.toMap(), where: "id = ?", whereArgs: [doador.id]);
+      await _db.update('agendamento', agendamento.toMap(), where: "id = ?", whereArgs: [agendamento.id]);
+      print('Agendamento alterado: ' + agendamento.id.toString());
     } catch (ex) {
       print(ex);
       return;
     }
   }
 
-  static delete(int id) async {
+  delete(int id) async {
     try {
       var _db = await Connection.get();
       await _db.delete('agendamento', where: "id = ?", whereArgs: [id]);
+      print('Agendamento deletado: ' + id.toString());
     } on Exception catch (_) {
       print("Erro ao deletar id: "[id]);
       throw Exception("Erro ao deletar id: "[id]);
+    }
+  }
+
+  Future<bool> existAgendamento(String id) async {
+    var _db = await Connection.get();
+    List<Map> retorno = await _db.query('agendamento', where: " id = ?", whereArgs: [id]);
+    if (retorno.isNotEmpty) {
+      return true;
+    } else {
+      return false;
     }
   }
 }

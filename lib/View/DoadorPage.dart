@@ -77,6 +77,7 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
   // Functions
 
   Future _carregaCamposDoador() async {
+    arquivo = null;
     _doador.id = await DoadorDAO.returnDoadorId(widget.idUsuario);
     _doadorExiste = _doador.id > 0;
 

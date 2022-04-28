@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'AgendamentoPage.dart';
 import 'AgendamentoRequisitosPage.dart';
 import 'DoadorPage.dart';
+import 'ListaAgendamentosPage.dart';
 
 class PrincipalPage extends StatefulWidget {
   Usuario _usuario = Usuario();
@@ -109,28 +110,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
               leading: Icon(Icons.calendar_today),
               title: Text("Agendamento doação sangue"),
               onTap: () {
-                if (_doadorId > 0) {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AgendamentoPage(widget._usuario.id, widget._usuario.nome, _doadorId, 0),
-                    ),
-                  );
-                } else {
-                  // mensagem erro
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.calendar_today),
-              title: Text("Agendamento requisitos doação sangue"),
-              onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AgendamentoRequisitosPage(widget._usuario.id, widget._usuario.nome, _doadorId),
+                    builder: (context) => ListaAgendamentoPage(widget._usuario.id, widget._usuario.nome, _doadorId),
                   ),
                 );
               },
@@ -153,7 +137,7 @@ class _PrincipalPageState extends State<PrincipalPage> {
               title: Text("Teste Token API"),
               onTap: () async {
                 ConnectionAPI api = ConnectionAPI();
-                await api.getUsuario();
+                await api.getUsuario(context); // contexto só pra mostrar q funciona
               },
             ),
             // ListTile(

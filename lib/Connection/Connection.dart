@@ -10,13 +10,14 @@ class Connection {
   static Future<Database> get() async {
     if (database == null) {
       var path = join(await getDatabasesPath(), dbName);
-      //deleteDatabase(path);
+      //   deleteDatabase(path);
       database = await openDatabase(
         path,
         version: 1,
         onCreate: (db, v) {
           db.execute(createTableUsuario);
           db.execute(createTableDoador);
+          db.execute(createTableHorario);
           db.execute(createTableAgendamento);
         },
       );

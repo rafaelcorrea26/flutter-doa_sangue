@@ -1,20 +1,19 @@
 import 'package:flutter/material.dart';
 
 class ConfiguracaoPage extends StatelessWidget {
-  const ConfiguracaoPage({ Key? key }) : super(key: key);
-
-
+  const ConfiguracaoPage({Key? key}) : super(key: key);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: corpo(context),
-      appBar: barraSuperior(),
+      appBar: _barraSuperior(),
     );
-  }}
+  }
+}
 
-barraSuperior() {
+_barraSuperior() {
   return AppBar(
     title: Text("Tela de Configuração"),
     centerTitle: true,
@@ -26,9 +25,7 @@ Widget corpo(context) {
   return Container(
     color: Colors.white,
     child: Column(
-      children:  [
-      ],
+      children: [],
     ),
   );
 }
-
