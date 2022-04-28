@@ -5,6 +5,7 @@ import 'package:brasil_fields/brasil_fields.dart';
 import 'package:doa_sangue/Model/Doador.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'dart:io';
 
 class CadastroDoadorPage extends StatefulWidget {
@@ -19,6 +20,7 @@ class CadastroDoadorPage extends StatefulWidget {
 class _CadastroDoadorPage extends State<CadastroDoadorPage> {
   // variaveis globais
   final _formKey = GlobalKey<FormState>();
+  DateTime _date = DateTime.now();
   Doador _doador = Doador();
   bool _tipoDoador = false;
   bool _doadorExiste = false;
@@ -76,7 +78,45 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
 
   // Functions
 
+  Future<Null> _selectcDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+        locale: Locale("pt"),
+        context: context,
+        initialDate: _date,
+        firstDate: DateTime(2022),
+        lastDate: DateTime(2030),
+        builder: (context, child) {
+          return Theme(
+            data: ThemeData.light().copyWith(
+                colorScheme: const ColorScheme.light(
+                    onPrimary: Colors.white, // selected text color
+                    onSurface: Colors.red, // default text color
+                    primary: Colors.red // circle color
+                    ),
+                dialogBackgroundColor: Colors.white,
+                textButtonTheme: TextButtonThemeData(
+                    style: TextButton.styleFrom(
+                        textStyle: const TextStyle(
+                            color: Colors.red, fontWeight: FontWeight.normal, fontSize: 14, fontFamily: 'Quicksand'),
+                        primary: Colors.red, // color of button's letters
+                        backgroundColor: Colors.white, // Background color
+                        shape: RoundedRectangleBorder(
+                            side: const BorderSide(color: Colors.white, width: 1, style: BorderStyle.solid),
+                            borderRadius: BorderRadius.circular(50))))),
+            child: child!,
+          );
+        });
+    if (picked != null && picked != _date) {
+      print(_data_nascController.text = DateFormat("dd/MM/yyyy").format(picked));
+
+      setState(() {
+        _data_nascController.text = DateFormat("dd/MM/yyyy").format(picked);
+      });
+    }
+  }
+
   Future _carregaCamposDoador() async {
+    arquivo = null;
     _doador.id = await DoadorDAO.returnDoadorId(widget.idUsuario);
     _doadorExiste = _doador.id > 0;
 
@@ -454,12 +494,9 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
               ),
               TextFormField(
                 validator: Validators.required('Data Nascimento não pode ficar em branco.'),
-                enabled: true,
                 controller: _data_nascController,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly, DataInputFormatter()],
-                keyboardType: TextInputType.datetime,
                 decoration: InputDecoration(
-                  labelText: "Data Nascimento",
+                  labelText: "Data Agendamento",
                   labelStyle: TextStyle(
                     color: Colors.black38,
                     fontWeight: FontWeight.w400,
@@ -469,6 +506,10 @@ class _CadastroDoadorPage extends State<CadastroDoadorPage> {
                 style: TextStyle(
                   fontSize: 18,
                 ),
+                onTap: () {
+                  FocusScope.of(context).requestFocus(new FocusNode());
+                  _selectcDate(context);
+                },
               ),
               const SizedBox(
                 height: 10,

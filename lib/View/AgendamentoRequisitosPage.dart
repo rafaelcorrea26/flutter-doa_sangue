@@ -1,11 +1,12 @@
+import 'package:doa_sangue/Model/Agendamento.dart';
 import 'package:doa_sangue/View/AgendamentoPage.dart';
 import 'package:flutter/material.dart';
 
 class AgendamentoRequisitosPage extends StatefulWidget {
-  int idUsuario;
   String NomeUsuario;
-  int idDoador;
-  AgendamentoRequisitosPage(this.idUsuario, this.NomeUsuario, this.idDoador);
+  Agendamento agendamento;
+
+  AgendamentoRequisitosPage(this.NomeUsuario, this.agendamento);
 
   @override
   State<AgendamentoRequisitosPage> createState() => _AgendamentoRequisitosPageState();
@@ -17,7 +18,7 @@ class _AgendamentoRequisitosPageState extends State<AgendamentoRequisitosPage> {
 
   barraSuperior() {
     return AppBar(
-      title: Text("Tela Agendamento"),
+      title: Text("Requisitos para Agendamento"),
       centerTitle: true,
       backgroundColor: Colors.red[400],
     );
@@ -77,7 +78,7 @@ class _AgendamentoRequisitosPageState extends State<AgendamentoRequisitosPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => AgendamentoPage(widget.idDoador, widget.NomeUsuario, widget.idDoador, 0),
+              builder: (context) => AgendamentoPage(widget.NomeUsuario, false, widget.agendamento),
             ),
           );
         } else {
@@ -103,6 +104,20 @@ class _AgendamentoRequisitosPageState extends State<AgendamentoRequisitosPage> {
     );
   }
 
+  headerRequisitoDoar(requisito) {
+    return Container(
+      child: Padding(
+        padding: EdgeInsets.all(10),
+        child: Center(
+          child: Text(
+            requisito,
+            style: TextStyle(color: Colors.red, fontSize: 16, fontWeight: FontWeight.normal, fontFamily: 'Poppins'),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget corpo(context) {
     return Form(
       key: _formKey,
@@ -111,6 +126,7 @@ class _AgendamentoRequisitosPageState extends State<AgendamentoRequisitosPage> {
         color: Colors.white,
         child: ListView(
           children: <Widget>[
+            headerRequisitoDoar("Recomendações:"),
             requisitoDoar("Estar alimentado. Evite alimentos gordurosos nas 3 horas que antecedem a doação de sangue."),
             requisitoDoar("Caso seja após o almoço, aguardar 2 horas."),
             requisitoDoar("Ter dormido pelo menos 6 horas nas últimas 24 horas."),
@@ -119,23 +135,27 @@ class _AgendamentoRequisitosPageState extends State<AgendamentoRequisitosPage> {
                 "A frequência máxima é de quatro doações de sangue anuais para o homem e de três doações de sangue anuais para as mulher."),
             requisitoDoar(
                 "O intervalo mínimo entre uma doação de sangue e outra é de dois meses para os homens e de três meses para as mulheres."),
-            requisitoDoar("Não estár com Gripe, resfriado e febre: aguardar 7 dias após o desaparecimento dos sintomas;"),
-            requisitoDoar("Não estár com Período gestacional"),
-            requisitoDoar("Não estár com Período pós-gravidez: 90 dias para parto normal e 180 dias para cesariana"),
-            requisitoDoar("Não estár com Amamentação: até 12 meses após o parto"),
-            requisitoDoar("Não estár com Ingestão de bebida alcoólica nas 12 horas que antecedem a doação"),
+            headerRequisitoDoar("Impedimentos:"),
+            requisitoDoar("Resfriado e febre: aguardar 7 dias após o desaparecimento dos sintomas;"),
+            requisitoDoar("Período gestacional"),
+            requisitoDoar("Período pós-gravidez: 90 dias para parto normal e 180 dias para cesariana"),
+            requisitoDoar("Amamentação: até 12 meses após o parto"),
+            requisitoDoar("Ingestão de bebida alcoólica nas 12 horas que antecedem a doação"),
             requisitoDoar(
-                "Não estár com Tatuagem e/ou piercing nos últimos 12 meses (piercing em cavidade oral ou região genital impedem a doação);"),
-            requisitoDoar("Não estár com Extração dentária: 72 horas"),
-            requisitoDoar("Não estár com Apendicite, hérnia, amigdalectomia, varizes: 3 meses"),
+                "Tatuagem e/ou piercing nos últimos 12 meses (piercing em cavidade oral ou região genital impedem a doação);"),
+            requisitoDoar("Extração dentária: 72 horas"),
+            requisitoDoar("Apendicite, hérnia, amigdalectomia, varizes: 3 meses"),
             requisitoDoar(
-                "Não estár com Colecistectomia, histerectomia, nefrectomia, redução de fraturas, politraumatismos sem seqüelas graves, tireoidectomia, colectomia: 6 meses"),
-            requisitoDoar("Não estár com Transfusão de sangue: 1 ano"),
-            requisitoDoar("Não estár com Exames/procedimentos com utilização de endoscópio nos últimos 6 meses"),
+                "Colecistectomia, histerectomia, nefrectomia, redução de fraturas, politraumatismos sem seqüelas graves, tireoidectomia, colectomia: 6 meses"),
+            requisitoDoar("Transfusão de sangue  a menos de  1 ano da data que deseja doar"),
+            requisitoDoar("Exames/procedimentos com utilização de endoscópio nos últimos 6 meses"),
             requisitoDoar(
-                "Não estár com Ter sido exposto a situações de risco acrescido para infecções sexualmente transmissíveis (aguardar 12 meses após a exposição)"),
+                "Ter sido exposto a situações de risco acrescido para infecções sexualmente transmissíveis (aguardar 12 meses após a exposição)"),
+            headerRequisitoDoar("Quais são os impedimentos definitivos para doar sangue?"),
+            requisitoDoar("Ter passado por um quadro de hepatite após os 11 anos de idade"),
             requisitoDoar(
-                "Doenças que que são inpedimentos definitivos  ter passado por um quadro de hepatite após os 11 anos de idade, evidencia clinica ou laboratorial das seguintes doenças de sangue: Hepatites B e C, AIDS( virus HIV), doenças associadas aos virus HTLV I e II e doença de chagas, uso de drogas ilícitas injetáveis e malaria. "),
+                "Evidencia clinica ou laboratorial das seguintes doenças de sangue: Hepatites B e C, AIDS( virus HIV), doenças associadas aos virus HTLV I e II e doença de chagas"),
+            requisitoDoar("Uso de drogas ilícitas injetáveis e malaria. "),
             aceitaTermos(context),
             botaoContinuar(),
           ],

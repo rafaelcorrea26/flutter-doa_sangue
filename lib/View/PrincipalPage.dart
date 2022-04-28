@@ -1,15 +1,13 @@
 import 'dart:io';
 import 'package:doa_sangue/Connection/DAO/DoadorDAO.dart';
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
-import 'package:doa_sangue/Model/Doador.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
 import 'package:doa_sangue/Service/ConnectionAPI.dart';
 import 'package:doa_sangue/View/AgendamentoMapaPage.dart';
 import 'package:doa_sangue/View/Login.CadastrarPage.dart';
 import 'package:flutter/material.dart';
-import 'AgendamentoPage.dart';
-import 'AgendamentoRequisitosPage.dart';
 import 'DoadorPage.dart';
+import 'ListaAgendamentosPage.dart';
 
 class PrincipalPage extends StatefulWidget {
   Usuario _usuario = Usuario();
@@ -109,28 +107,11 @@ class _PrincipalPageState extends State<PrincipalPage> {
               leading: Icon(Icons.calendar_today),
               title: Text("Agendamento doação sangue"),
               onTap: () {
-                if (_doadorId > 0) {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => AgendamentoPage(widget._usuario.id, widget._usuario.nome, _doadorId, 0),
-                    ),
-                  );
-                } else {
-                  // mensagem erro
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.calendar_today),
-              title: Text("Agendamento requisitos doação sangue"),
-              onTap: () {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => AgendamentoRequisitosPage(widget._usuario.id, widget._usuario.nome, _doadorId),
+                    builder: (context) => ListaAgendamentoPage(widget._usuario.id, widget._usuario.nome, _doadorId),
                   ),
                 );
               },
@@ -153,22 +134,9 @@ class _PrincipalPageState extends State<PrincipalPage> {
               title: Text("Teste Token API"),
               onTap: () async {
                 ConnectionAPI api = ConnectionAPI();
-                await api.getUsuario();
+                await api.getUsuario(context); // contexto só pra mostrar q funciona
               },
             ),
-            // ListTile(
-            //   leading: Icon(Icons.app_settings_alt),
-            //   title: Text("Configuração"),
-            //   onTap: () {
-            //     Navigator.pop(context);
-            //     Navigator.push(
-            //       context,
-            //       MaterialPageRoute(
-            //         builder: (context) => ConfiguracaoPage(),
-            //       ),
-            //     );
-            //   },
-            // ),
           ],
         ),
       ),

@@ -29,14 +29,20 @@ final createTableDoador = "CREATE TABLE IF NOT EXISTS doador("
     ", id_usuario INTEGER "
     ", FOREIGN KEY(id_usuario) REFERENCES usuario (id) )";
 
+final createTableHorario = "CREATE TABLE IF NOT EXISTS horario("
+    "  id INTEGER PRIMARY KEY     "
+    ", data_marcada     TEXT      "
+    ", horario_marcado  TEXT      )";
+
 final createTableAgendamento = "CREATE TABLE IF NOT EXISTS agendamento("
     "  id INTEGER PRIMARY KEY     "
     ", local_doacao    TEXT       "
-    ", horario_doacao  TEXT       "
-    ", idade           TEXT       "
+    ", idade           INTEGER    "
     ", sit_saude       TEXT       "
-    ", id_doador       INT        "
     ", status          TEXT       "
-    ", FOREIGN KEY(id_doador) REFERENCES doador (id) "
-    ", id_usuario INTEGER "
+    ", id_horario      INTEGER    "
+    ", id_doador       INTEGER    "
+    ", id_usuario      INTEGER    "
+    ", FOREIGN KEY(id_horario) REFERENCES horario (id)  "
+    ", FOREIGN KEY(id_doador) REFERENCES doador (id)    "
     ", FOREIGN KEY(id_usuario) REFERENCES usuario (id) )";

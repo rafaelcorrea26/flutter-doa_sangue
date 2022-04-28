@@ -36,6 +36,7 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
   }
 
   void _carregaCampos() async {
+    arquivo = null;
     if (_usuario.id > 0) {
       await UsuarioDAO.searchId(_usuario);
       print(_usuario.toString());
