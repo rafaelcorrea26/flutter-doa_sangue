@@ -4,6 +4,7 @@ import 'package:doa_sangue/Model/Agendamento.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'HorarioPage.dart';
 
 class AgendamentoPage extends StatefulWidget {
   String NomeUsuario;
@@ -28,6 +29,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   TextEditingController _nomeController = TextEditingController();
   TextEditingController _idadeController = TextEditingController();
   TextEditingController _dataController = TextEditingController();
+  TextEditingController _horaController = TextEditingController();
   DateTime _date = DateTime.now();
 
   Future<Null> _selectcDate(BuildContext context) async {
@@ -61,6 +63,17 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     if (picked != null && picked != _date) {
       print(_dataController.text = DateFormat("dd/MM/yyyy").format(picked));
 
+      setState(() {
+        _dataController.text = DateFormat("dd/MM/yyyy").format(picked);
+      });
+    }
+  }
+
+  Future<Null> _selectcHour(BuildContext context) async {
+    final DateTime? picked =
+        await Navigator.push(context, MaterialPageRoute(builder: (context) => HorarioPage(_dataController.text)));
+
+    if (picked != null && picked != _date) {
       setState(() {
         _dataController.text = DateFormat("dd/MM/yyyy").format(picked);
       });
@@ -137,7 +150,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 labelStyle: TextStyle(
                   color: Colors.black38,
                   fontWeight: FontWeight.w400,
-                  fontSize: 18,
+                  fontSize: 12,
                 ),
               ),
               style: TextStyle(
@@ -229,7 +242,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
                 hintText: "Data Agendamento",
                 prefixIcon: Padding(
                   padding: EdgeInsets.only(top: 15),
-                  child: Icon(Icons.alarm),
+                  child: Icon(Icons.calendar_today),
                 ),
               ),
               style: TextStyle(
@@ -238,6 +251,38 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
               onTap: () {
                 FocusScope.of(context).requestFocus(new FocusNode());
                 _selectcDate(context);
+              },
+            ),
+            TextFormField(
+              validator: Validators.required('Horário de Agendamento não pode ficar em branco.'),
+              controller: _horaController,
+              decoration: InputDecoration(
+                labelText: "Horário Agendamento",
+                labelStyle: TextStyle(
+                  color: Colors.black38,
+                  fontWeight: FontWeight.w400,
+                  fontSize: 18,
+                ),
+                contentPadding: EdgeInsets.only(top: 20),
+                isDense: true,
+                hintText: "Horário Agendamento",
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(top: 15),
+                  child: Icon(Icons.alarm),
+                ),
+              ),
+              style: TextStyle(
+                fontSize: 18,
+              ),
+              onTap: () {
+                FocusScope.of(context).requestFocus(new FocusNode());
+                if (_dataController.text != '') {
+                  _selectcHour(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Data não pode estar vazia para escolher o horário.')),
+                  );
+                }
               },
             ),
             SizedBox(
@@ -305,42 +350,44 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
 
   Widget aceitaTermos(context) {
     return FormField<bool>(
-      builder: (state) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Checkbox(
-                    value: checkboxValue,
-                    onChanged: (value) {
-                      setState(() {
-                        checkboxValue = value!;
-                        state.didChange(value);
-                      });
-                    }),
-                Text(
-                  'Confirmo que estou apto a fazer a doação.',
-                  style: TextStyle(fontSize: 14, height: 0.6, color: Colors.black),
-                  textAlign: TextAlign.justify,
-                ),
-              ],
-            ),
-            Text(
-              state.errorText ?? '',
-              style: TextStyle(
-                color: Theme.of(context).errorColor,
-              ),
-            )
-          ],
-        );
-      },
       validator: (value) {
         if (!checkboxValue) {
           return 'Você precisa aceitar os termos';
         } else {
           return null;
         }
+      },
+      builder: (state) {
+        return Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Checkbox(
+                      value: checkboxValue,
+                      onChanged: (value) {
+                        setState(() {
+                          checkboxValue = value!;
+                          state.didChange(value);
+                        });
+                      }),
+                  Text(
+                    'Confirmo que estou apto a fazer a doação.',
+                    style: TextStyle(fontSize: 12, height: 0.6, color: Colors.black),
+                    textAlign: TextAlign.justify,
+                  ),
+                ],
+              ),
+              Text(
+                state.errorText ?? '',
+                style: TextStyle(
+                  color: Theme.of(context).errorColor,
+                ),
+              )
+            ],
+          ),
+        );
       },
     );
   }

@@ -1,6 +1,6 @@
-import 'dart:async';
 import 'package:doa_sangue/Model/Agendamento.dart';
 import '../Connection.dart';
+import 'dart:async';
 
 class AgendamentoDAO {
   Future<Map> get() async {
@@ -29,7 +29,7 @@ class AgendamentoDAO {
 
     List<Map> retorno = await _db.query('agendamento', orderBy: 'id desc ');
     List<Agendamento> agendamento = [];
-    print(retorno);
+    // print(retorno);
 
     for (Map map in retorno) {
       agendamento.add(Agendamento.fromMap(map));
@@ -54,7 +54,6 @@ class AgendamentoDAO {
       var _db = await Connection.get();
       await _db.insert('agendamento', agendamento.toMap());
       print('Agendamento inserido: ' + agendamento.id.toString());
-      print('Agendamento cadastrado!');
     } catch (ex) {
       print(ex);
       return;

@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:doa_sangue/Connection/DAO/DoadorDAO.dart';
 import 'package:doa_sangue/Connection/DAO/UsuarioDAO.dart';
 import 'package:doa_sangue/Model/Usuario.dart';
@@ -6,8 +5,9 @@ import 'package:doa_sangue/Service/ConnectionAPI.dart';
 import 'package:doa_sangue/View/AgendamentoMapaPage.dart';
 import 'package:doa_sangue/View/Login.CadastrarPage.dart';
 import 'package:flutter/material.dart';
-import 'DoadorPage.dart';
 import 'ListaAgendamentosPage.dart';
+import 'DoadorPage.dart';
+import 'dart:io';
 
 class PrincipalPage extends StatefulWidget {
   Usuario _usuario = Usuario();

@@ -39,7 +39,6 @@ class _CadastroUsuarioPage extends State<CadastroUsuarioPage> {
     arquivo = null;
     if (_usuario.id > 0) {
       await UsuarioDAO.searchId(_usuario);
-      print(_usuario.toString());
       _nomeController.text = _usuario.nome;
       _loginController.text = _usuario.login;
       _emailController.text = _usuario.email;
