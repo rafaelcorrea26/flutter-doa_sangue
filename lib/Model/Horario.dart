@@ -4,11 +4,13 @@ class Horario {
   int id = 0;
   String data_marcada = "";
   String horario_marcado = "";
+  int id_agendamento = 0;
 
   Horario();
 
   Map<String, Object> toMap() {
     Map<String, Object> map = {
+      'id_agendamento': id_agendamento,
       'data_marcada': data_marcada,
       'horario_marcado': horario_marcado,
     };
@@ -18,8 +20,9 @@ class Horario {
     return map;
   }
 
-  fromMap(Map map) {
+  Horario.fromMap(Map map) {
     id = map['id'];
+    id_agendamento = map['id_agendamento'];
     data_marcada = map['data_marcada'];
     horario_marcado = map['horario_marcado'];
   }
@@ -27,7 +30,8 @@ class Horario {
   @override
   String toString() {
     return 'Agendamento{id: $id, '
-        'data_marcada: $data_marcada,'
+        'id_agendamento : $id_agendamento, '
+        'data_marcada: $data_marcada, '
         'horario_marcado: $horario_marcado}';
   }
 

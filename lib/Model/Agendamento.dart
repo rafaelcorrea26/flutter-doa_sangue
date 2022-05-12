@@ -6,7 +6,6 @@ class Agendamento {
   int idade = 0;
   String sit_saude = "";
   String status = "";
-  int id_horario = 0;
   int id_usuario = 0;
   int id_doador = 0;
   Agendamento();
@@ -17,7 +16,6 @@ class Agendamento {
       'idade': idade,
       'sit_saude': sit_saude,
       'status': status,
-      'id_horario': id_horario,
       'id_usuario': id_usuario,
       'id_doador': id_doador,
     };
@@ -33,7 +31,6 @@ class Agendamento {
     idade = map['idade'];
     sit_saude = map['sit_saude'];
     status = map['status'];
-    id_horario = map['id_horario'];
     id_usuario = map['id_usuario'];
     id_doador = map['id_doador'];
   }
@@ -46,7 +43,6 @@ class Agendamento {
         'sit_saude: $sit_saude,'
         'status: $status,'
         'id_usuario: $id_usuario,'
-        'id_horario: $id_horario,'
         'id_doador: $id_doador}';
   }
 

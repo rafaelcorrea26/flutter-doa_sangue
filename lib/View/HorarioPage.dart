@@ -17,10 +17,6 @@ List<String> sab = ['08:00', '09:00', '10:00', '11:00'];
 List<String> dom = [];
 
 class _HorarioPageState extends State<HorarioPage> {
-  retornaSelecionado(text) {
-    Navigator.pop(context, text);
-  }
-
   List<String> retornaDiaSemana() {
     DateTime date = DateTime.now();
     if (DateFormat('EEEE').format(date) == 'Monday') {
@@ -46,7 +42,9 @@ class _HorarioPageState extends State<HorarioPage> {
           child: Column(
             children: [
               GestureDetector(
-                onTap: () => {Navigator.pop(context)},
+                onTap: () {
+                  Navigator.pop(context, listaSemana[i]);
+                },
                 child: Container(
                   padding: const EdgeInsets.all(8.0),
                   color: Colors.red[400],

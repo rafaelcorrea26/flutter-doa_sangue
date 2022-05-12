@@ -1,6 +1,8 @@
 import 'package:doa_sangue/Connection/DAO/AgendamentoDAO.dart';
+import 'package:doa_sangue/Connection/DAO/HorarioDAO.dart';
 import 'package:doa_sangue/Controller/Validators.dart';
 import 'package:doa_sangue/Model/Agendamento.dart';
+import 'package:doa_sangue/Model/Horario.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
@@ -18,10 +20,13 @@ class AgendamentoPage extends StatefulWidget {
 }
 
 class _AgendamentoPageState extends State<AgendamentoPage> {
-  bool checkboxValue = false;
-  AgendamentoDAO helper = AgendamentoDAO();
-  final _formKey = GlobalKey<FormState>();
   Agendamento _agendamento = Agendamento();
+  AgendamentoDAO helper = AgendamentoDAO();
+  Horario _horario = Horario();
+  HorarioDAO helperHorario = HorarioDAO();
+
+  final _formKey = GlobalKey<FormState>();
+  bool checkboxValue = false;
   String _dropdownSitValue = 'Bem';
   String _dropdownStatusValue = 'Pendente';
   List<String> _sitSaude = ['Bem', 'Ruim'];
@@ -32,7 +37,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
   TextEditingController _horaController = TextEditingController();
   DateTime _date = DateTime.now();
 
-  Future<Null> _selectcDate(BuildContext context) async {
+  Future<Null> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
         locale: Locale("pt"),
         context: context,
@@ -69,14 +74,14 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     }
   }
 
-  Future<Null> _selectcHour(BuildContext context) async {
-    final DateTime? picked =
-        await Navigator.push(context, MaterialPageRoute(builder: (context) => HorarioPage(_dataController.text)));
+  Future<Null> _selectHour(BuildContext context) async {
+    final retorno = await Navigator.push(context, MaterialPageRoute(builder: (context) => HorarioPage(_dataController.text)));
+    print(retorno);
 
-    if (picked != null && picked != _date) {
-      setState(() {
-        _dataController.text = DateFormat("dd/MM/yyyy").format(picked);
-      });
+    if (retorno != '') {
+      _horaController.text = retorno;
+    } else {
+      _horaController.clear();
     }
   }
 
@@ -87,6 +92,9 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
       _dropdownSitValue = widget.agendamento.sit_saude;
       _dropdownStatusValue = widget.agendamento.status;
 
+      _horario = await helperHorario.searchIdAgendamento(_agendamento.id);
+      _dataController.text = _horario.data_marcada;
+      _horaController.text = _horario.horario_marcado;
       print(widget.agendamento);
     } else {
       _agendamento.id = 0;
@@ -105,12 +113,17 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
     _agendamento.id_usuario = widget.agendamento.id_usuario;
     _agendamento.id_doador = widget.agendamento.id_doador;
 
+    _horario.data_marcada = _dataController.text;
+    _horario.horario_marcado = _horaController.text;
+
     if (_agendamento.id > 0) {
+      _horario.id_agendamento = _agendamento.id;
+      helperHorario.update(_horario);
       helper.update(_agendamento);
     } else {
-      helper.insert(_agendamento);
+      _horario.id_agendamento = await helper.insert(_agendamento);
+      helperHorario.insert(_horario);
     }
-
     Navigator.pop(context, false);
   }
 
@@ -250,7 +263,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
               ),
               onTap: () {
                 FocusScope.of(context).requestFocus(new FocusNode());
-                _selectcDate(context);
+                _selectDate(context);
               },
             ),
             TextFormField(
@@ -277,7 +290,7 @@ class _AgendamentoPageState extends State<AgendamentoPage> {
               onTap: () {
                 FocusScope.of(context).requestFocus(new FocusNode());
                 if (_dataController.text != '') {
-                  _selectcHour(context);
+                  _selectHour(context);
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Data não pode estar vazia para escolher o horário.')),

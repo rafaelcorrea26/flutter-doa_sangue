@@ -17,8 +17,8 @@ class Connection {
         onCreate: (db, v) {
           db.execute(createTableUsuario);
           db.execute(createTableDoador);
-          db.execute(createTableHorario);
           db.execute(createTableAgendamento);
+          db.execute(createTableHorario);
         },
       );
     }

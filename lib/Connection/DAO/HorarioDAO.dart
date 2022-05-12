@@ -3,27 +3,28 @@ import 'package:doa_sangue/Model/Horario.dart';
 import '../Connection.dart';
 
 class HorarioDAO {
-  static Future<Horario> search(Horario horario) async {
+  Future<Horario> search(Horario horario) async {
     var _db = await Connection.get();
     List<Map> retorno = await _db.query('horario');
     if (retorno.isNotEmpty) {
-      return horario.fromMap(retorno.first);
+      return Horario.fromMap(retorno.first);
     } else {
       return null!;
     }
   }
 
-  static Future<Horario> searchId(Horario horario) async {
+  Future<Horario> searchIdAgendamento(int idAgendamento) async {
     var _db = await Connection.get();
-    List<Map> retorno = await _db.query('horario', where: 'id = ?', whereArgs: [horario.id]);
+
+    List<Map> retorno = await _db.query('horario', where: 'id_agendamento = ?', whereArgs: [idAgendamento]);
     if (retorno.isNotEmpty) {
-      return horario.fromMap(retorno.first);
+      return Horario.fromMap(retorno.first);
     } else {
       return null!;
     }
   }
 
-  static Future<bool> isValidHorario(int id) async {
+  Future<bool> isValidHorario(int id) async {
     var _db = await Connection.get();
     List<Map> retorno = await _db.query('horario', where: 'id = ?', whereArgs: [id]);
 
@@ -34,28 +35,30 @@ class HorarioDAO {
     }
   }
 
-  static Future insert(Horario horario) async {
+  Future<int> insert(Horario horario) async {
     try {
       var _db = await Connection.get();
-      await _db.insert('horario', horario.toMap());
-      print('Horario cadastrado!');
+      final insertedId = await _db.insert('horario', horario.toMap());
+      print('Horario inserido: ' + horario.id.toString());
+      return insertedId;
     } catch (ex) {
       print(ex);
-      return;
+      return 0;
     }
   }
 
-  static update(Horario horario) async {
+  update(Horario horario) async {
     try {
       var _db = await Connection.get();
       await _db.update('horario', horario.toMap(), where: "id = ?", whereArgs: [horario.id]);
+      print('Horario alterado: ' + horario.id.toString());
     } catch (ex) {
       print(ex);
       return;
     }
   }
 
-  static delete(int id) async {
+  delete(int id) async {
     try {
       var _db = await Connection.get();
       await _db.delete('horario', where: "id = ?", whereArgs: [id]);

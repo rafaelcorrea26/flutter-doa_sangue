@@ -49,14 +49,15 @@ class AgendamentoDAO {
     }
   }
 
-  Future insert(Agendamento agendamento) async {
+  Future<int> insert(Agendamento agendamento) async {
     try {
       var _db = await Connection.get();
-      await _db.insert('agendamento', agendamento.toMap());
-      print('Agendamento inserido: ' + agendamento.id.toString());
+      final insertedId = await _db.insert('agendamento', agendamento.toMap());
+      print('Agendamento inserido: $insertedId');
+      return insertedId;
     } catch (ex) {
       print(ex);
-      return;
+      return 0;
     }
   }
 
